@@ -3,40 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quay Số Ngẫu Nhiên</title>
+    <title>Quay Số Ngẫu Nhiên - Phóng To</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
-        .container { text-align: center; background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
-        #result { font-size: 5rem; font-weight: bold; color: #007bff; margin: 20px 0; min-height: 120px; }
-        button { padding: 10px 25px; font-size: 1.2rem; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 5px; transition: 0.3s; }
-        button:hover { background-color: #218838; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            background-color: #e9ecef; 
+        }
+        
+        .container { 
+            text-align: center; 
+            background: white; 
+            padding: 4rem; /* Gấp đôi padding */
+            border-radius: 30px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 400px; /* Đảm bảo khung đủ rộng */
+        }
+
+        h1 { 
+            color: #333; 
+            font-size: 3rem; /* Gấp đôi cỡ chữ tiêu đề */
+            margin-bottom: 2rem;
+        }
+
+        #result { 
+            font-size: 12rem; /* Phóng cực đại số hiển thị */
+            font-weight: 900; 
+            color: #d9534f; /* Đổi sang màu đỏ nổi bật */
+            margin: 40px 0; 
+            min-height: 250px;
+            line-height: 1;
+        }
+
+        button { 
+            padding: 20px 50px; /* Nút bấm to gấp đôi */
+            font-size: 2.5rem;   /* Chữ trong nút to hơn */
+            cursor: pointer; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 15px; 
+            transition: transform 0.1s, background-color 0.3s;
+            box-shadow: 0 6px #0056b3;
+        }
+
+        button:hover { 
+            background-color: #0069d9; 
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px #0056b3;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Số May Mắn (1-48)</h1>
+    <h1>SỐ MAY MẮN</h1>
     <div id="result">?</div>
-    <button onclick="generateNumber()">Quay Số</button>
+    <button onclick="generateNumber()">QUAY SỐ</button>
 </div>
 
 <script>
     function generateNumber() {
         const resultDiv = document.getElementById('result');
         let count = 0;
+        const totalSteps = 15; // Tăng số bước nhảy để hiệu ứng mượt hơn
         
-        // Tạo hiệu ứng nhảy số cho vui mắt
+        // Hiệu ứng nhảy số ngẫu nhiên trước khi dừng
         const interval = setInterval(() => {
             const randomTemp = Math.floor(Math.random() * 48) + 1;
             resultDiv.innerText = randomTemp;
             count++;
-            if (count > 10) {
+            
+            if (count > totalSteps) {
                 clearInterval(interval);
                 const finalNumber = Math.floor(Math.random() * 48) + 1;
                 resultDiv.innerText = finalNumber;
+                
+                // Hiệu ứng nhẹ khi ra số cuối cùng
+                resultDiv.style.transform = "scale(1.1)";
+                setTimeout(() => resultDiv.style.transform = "scale(1)", 100);
             }
-        }, 50);
+        }, 60);
     }
 </script>
 
