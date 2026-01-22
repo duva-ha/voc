@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quay Số 6 Lồng Tuần Tự</title>
+    <title>Quay Số 6 Lồng - 5 Giây/Lồng</title>
     <style>
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -11,7 +11,7 @@
             height: 100vh; margin: 0; background-color: #1a1a1a; color: white;
         }
         
-        .container { text-align: center; background: #2d2d2d; padding: 2.5rem; border-radius: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 95%; max-width: 1100px; }
+        .container { text-align: center; background: #2d2d2d; padding: 2.5rem; border-radius: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 95%; max-width: 1000px; }
         
         h1 { font-size: 2.2rem; color: #ffc107; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 3px; }
 
@@ -21,17 +21,17 @@
 
         .slot {
             background: #000;
-            width: 120px; height: 180px;
+            width: 110px; height: 170px;
             display: flex; justify-content: center; align-items: center;
             font-size: 7rem; font-weight: 900;
-            color: #444; /* Màu mặc định khi chưa quay */
+            color: #333; /* Màu khi chưa quay */
             border-radius: 15px;
             border: 3px solid #444;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
         /* Hiệu ứng khi lồng đang quay */
-        .spinning { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.2); }
+        .spinning { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
         
         /* Hiệu ứng khi đã có kết quả */
         .final { color: #ffffff; border-color: #ffc107; text-shadow: 0 0 15px #ffc107; }
@@ -52,7 +52,7 @@
 <body>
 
 <div class="container">
-    <h1>HỆ THỐNG QUAY SỐ TỰ ĐỘNG</h1>
+    <h1>HỆ THỐNG QUAY SỐ</h1>
     
     <div class="display-area">
         <div class="slot-box"><div id="d1" class="slot">0</div><div class="label">Lồng 1</div></div>
@@ -67,7 +67,6 @@
 </div>
 
 <script>
-    // Hàm tạo độ trễ (delay)
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     async function spinSingleSlot(slotId, finalValue, duration) {
@@ -76,13 +75,11 @@
         
         let startTime = Date.now();
         
-        // Vòng lặp quay số ngẫu nhiên
         while (Date.now() - startTime < duration) {
             slot.innerText = Math.floor(Math.random() * 10);
-            await sleep(60); // Tốc độ nhảy số
+            await sleep(50); // Tốc độ nhảy số nhanh hơn chút cho mượt
         }
         
-        // Dừng lại ở giá trị cuối
         slot.innerText = finalValue;
         slot.classList.remove('spinning');
         slot.classList.add('final');
@@ -90,25 +87,27 @@
 
     async function handleSpin() {
         const btn = document.getElementById('spinBtn');
-        const slots = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'];
+        const slotsIds = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'];
         
+        // Bước 1: Vô hiệu hóa nút và Reset toàn bộ về 0 ngay lập tức
         btn.disabled = true;
-        
-        // Xóa trạng thái cũ
-        slots.forEach(id => {
-            document.getElementById(id).classList.remove('final');
-            document.getElementById(id).style.color = "#444";
+        slotsIds.forEach(id => {
+            const el = document.getElementById(id);
+            el.innerText = "0";
+            el.classList.remove('final', 'spinning');
+            el.style.color = "#333"; // Màu tối trạng thái chờ
         });
 
-        // Tạo số ngẫu nhiên từ 0 đến 1300
+        // Chờ một chút ngắn để tạo cảm giác "chuẩn bị" (0.5 giây)
+        await sleep(500);
+
+        // Bước 2: Tạo số ngẫu nhiên từ 0 đến 1300
         const randomNum = Math.floor(Math.random() * 1301);
-        // Chuyển thành chuỗi 6 số (2 số đầu là 0, 4 số sau lấy từ randomNum)
-        // Ví dụ: 1300 -> 001300
         const finalString = "00" + randomNum.toString().padStart(4, '0');
         
-        // Quay từng lồng một (mỗi lồng 8000ms = 8 giây)
-        for (let i = 0; i < slots.length; i++) {
-            await spinSingleSlot(slots[i], finalString[i], 8000);
+        // Bước 3: Quay từng lồng tuần tự, mỗi lồng 5000ms (5 giây)
+        for (let i = 0; i < slotsIds.length; i++) {
+            await spinSingleSlot(slotsIds[i], finalString[i], 5000);
         }
         
         btn.disabled = false;
