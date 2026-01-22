@@ -3,94 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quay Số Ngẫu Nhiên - Phóng To</title>
+    <title>Quay Số Hai Lồng</title>
     <style>
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
-            background-color: #e9ecef; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; background-color: #1a1a1a; color: white;
         }
         
-        .container { 
-            text-align: center; 
-            background: white; 
-            padding: 4rem; /* Gấp đôi padding */
-            border-radius: 30px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            min-width: 400px; /* Đảm bảo khung đủ rộng */
+        .container { text-align: center; background: #2d2d2d; padding: 4rem; border-radius: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        
+        h1 { font-size: 2.5rem; color: #ffc107; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 5px; }
+
+        .display-area { display: flex; justify-content: center; gap: 30px; margin-bottom: 3rem; }
+
+        .slot {
+            background: #000;
+            width: 180px; height: 260px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 15rem; font-weight: 900;
+            color: #00ff00; border-radius: 20px;
+            border: 4px solid #444;
         }
 
-        h1 { 
-            color: #333; 
-            font-size: 3rem; /* Gấp đôi cỡ chữ tiêu đề */
-            margin-bottom: 2rem;
-        }
-
-        #result { 
-            font-size: 12rem; /* Phóng cực đại số hiển thị */
-            font-weight: 900; 
-            color: #d9534f; /* Đổi sang màu đỏ nổi bật */
-            margin: 40px 0; 
-            min-height: 250px;
-            line-height: 1;
-        }
+        .label { font-size: 1.2rem; color: #888; margin-top: 10px; text-transform: uppercase; }
 
         button { 
-            padding: 20px 50px; /* Nút bấm to gấp đôi */
-            font-size: 2.5rem;   /* Chữ trong nút to hơn */
-            cursor: pointer; 
-            background-color: #007bff; 
-            color: white; 
-            border: none; 
-            border-radius: 15px; 
-            transition: transform 0.1s, background-color 0.3s;
-            box-shadow: 0 6px #0056b3;
+            padding: 25px 60px; font-size: 2.5rem; font-weight: bold;
+            cursor: pointer; background: linear-gradient(145deg, #ff416c, #ff4b2b);
+            color: white; border: none; border-radius: 50px;
+            box-shadow: 0 10px #b91d1d; transition: 0.1s;
         }
 
-        button:hover { 
-            background-color: #0069d9; 
-        }
-
-        button:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px #0056b3;
-        }
+        button:active { transform: translateY(5px); box-shadow: 0 5px #b91d1d; }
+        
+        button:disabled { background: #555; box-shadow: 0 5px #333; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>SỐ MAY MẮN</h1>
-    <div id="result">?</div>
-    <button onclick="generateNumber()">QUAY SỐ</button>
+    <h1>VÒNG QUAY MAY MẮN</h1>
+    
+    <div class="display-area">
+        <div>
+            <div id="digit1" class="slot">0</div>
+            <div class="label">Hàng chục</div>
+        </div>
+        <div>
+            <div id="digit2" class="slot">0</div>
+            <div class="label">Hàng đơn vị</div>
+        </div>
+    </div>
+
+    <button id="spinBtn" onclick="startSpin()">QUAY SỐ</button>
 </div>
 
 <script>
-    function generateNumber() {
-        const resultDiv = document.getElementById('result');
-        let count = 0;
-        const totalSteps = 15; // Tăng số bước nhảy để hiệu ứng mượt hơn
+    function startSpin() {
+        const btn = document.getElementById('spinBtn');
+        const d1 = document.getElementById('digit1');
+        const d2 = document.getElementById('digit2');
         
-        // Hiệu ứng nhảy số ngẫu nhiên trước khi dừng
+        btn.disabled = true; // Khóa nút khi đang quay
+        
+        let count = 0;
+        const speed = 70; // Tốc độ nhảy số
+        const totalSteps = 25;
+
         const interval = setInterval(() => {
-            const randomTemp = Math.floor(Math.random() * 48) + 1;
-            resultDiv.innerText = randomTemp;
+            // Nhảy số ngẫu nhiên cho vui mắt trong khi chờ kết quả
+            d1.innerText = Math.floor(Math.random() * 5); // 0-4
+            d2.innerText = Math.floor(Math.random() * 10); // 0-9
+            
             count++;
             
             if (count > totalSteps) {
                 clearInterval(interval);
-                const finalNumber = Math.floor(Math.random() * 48) + 1;
-                resultDiv.innerText = finalNumber;
                 
-                // Hiệu ứng nhẹ khi ra số cuối cùng
-                resultDiv.style.transform = "scale(1.1)";
-                setTimeout(() => resultDiv.style.transform = "scale(1)", 100);
+                // --- LOGIC CHÍNH ---
+                // 1. Quay số hàng chục (0-4)
+                const finalD1 = Math.floor(Math.random() * 5);
+                
+                // 2. Quay số hàng đơn vị dựa trên hàng chục
+                let finalD2;
+                if (finalD1 === 4) {
+                    finalD2 = Math.floor(Math.random() * 9); // Nếu là 4 thì chỉ lấy 0-8
+                } else {
+                    finalD2 = Math.floor(Math.random() * 10); // Ngược lại lấy 0-9
+                }
+
+                // Hiển thị kết quả cuối cùng
+                d1.innerText = finalD1;
+                d2.innerText = finalD2;
+                
+                btn.disabled = false;
+                
+                // Hiệu ứng nháy đèn khi trúng số
+                d1.style.color = "#fff";
+                d2.style.color = "#fff";
+                setTimeout(() => {
+                    d1.style.color = "#00ff00";
+                    d2.style.color = "#00ff00";
+                }, 200);
             }
-        }, 60);
+        }, speed);
     }
 </script>
 
