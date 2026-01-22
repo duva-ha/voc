@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quay Số Ngẫu Nhiên</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
+        .container { text-align: center; background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        #result { font-size: 5rem; font-weight: bold; color: #007bff; margin: 20px 0; min-height: 120px; }
+        button { padding: 10px 25px; font-size: 1.2rem; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 5px; transition: 0.3s; }
+        button:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Số May Mắn (1-48)</h1>
+    <div id="result">?</div>
+    <button onclick="generateNumber()">Quay Số</button>
+</div>
+
+<script>
+    function generateNumber() {
+        const resultDiv = document.getElementById('result');
+        let count = 0;
+        
+        // Tạo hiệu ứng nhảy số cho vui mắt
+        const interval = setInterval(() => {
+            const randomTemp = Math.floor(Math.random() * 48) + 1;
+            resultDiv.innerText = randomTemp;
+            count++;
+            if (count > 10) {
+                clearInterval(interval);
+                const finalNumber = Math.floor(Math.random() * 48) + 1;
+                resultDiv.innerText = finalNumber;
+            }
+        }, 50);
+    }
+</script>
+
+</body>
+</html>
