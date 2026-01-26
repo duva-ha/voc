@@ -13,53 +13,54 @@
         :root { --primary: #ff4b2b; --secondary: #ffc107; --bg: #1a1a1a; --card: #2d2d2d; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
+        /* Giao diện Header */
         .header { width: 100%; padding: 20px; background: #000; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 2px solid var(--primary); }
         .logo { font-weight: 900; color: var(--primary); font-size: 1.5rem; letter-spacing: 2px; }
         
         .main-layout { display: flex; gap: 30px; padding: 40px; max-width: 1200px; width: 100%; box-sizing: border-box; }
         
-        /* CỘT TRÁI: ĐIỀU KHIỂN & QR */
+        /* Cột trái: QR và Thống kê */
         .sidebar { flex: 1; background: var(--card); padding: 30px; border-radius: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         #qrcode { background: white; padding: 15px; border-radius: 15px; display: inline-block; margin: 20px 0; border: 5px solid white; }
         .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #444; margin: 20px 0; }
         .stats-num { font-size: 3.5rem; font-weight: 900; color: var(--secondary); display: block; }
         
-        /* CỘT PHẢI: MÀN HÌNH QUAY */
+        /* Cột phải: Màn hình lồng quay */
         .wheel-area { flex: 2; text-align: center; }
         .display-area { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; }
         .slot { background: #000; width: 100px; height: 160px; display: flex; justify-content: center; align-items: center; font-size: 7rem; font-weight: 900; color: #333; border-radius: 20px; border: 4px solid #444; transition: 0.2s; }
+        
+        /* Hiệu ứng lồng quay */
         .spinning { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 25px rgba(0,255,0,0.4); }
         .final { color: #ffffff; border-color: var(--secondary); text-shadow: 0 0 20px var(--secondary); }
         
         .btn-spin { padding: 25px 90px; font-size: 2.2rem; font-weight: bold; cursor: pointer; background: linear-gradient(145deg, #ff416c, #ff4b2b); color: white; border: none; border-radius: 60px; box-shadow: 0 10px #b91d1d; transition: 0.1s; }
         .btn-spin:active { transform: translateY(5px); box-shadow: 0 5px #b91d1d; }
-        .btn-spin:disabled { background: #555; box-shadow: 0 5px #333; cursor: not-allowed; opacity: 0.5; }
+        .btn-spin:disabled { background: #555; cursor: not-allowed; opacity: 0.5; }
         
-        #winner-info { margin-top: 35px; min-height: 100px; font-size: 2.2rem; color: var(--secondary); font-weight: bold; line-height: 1.2; }
-        .btn-reset { margin-top: 40px; background: transparent; border: 1px solid #444; color: #666; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .btn-reset:hover { color: #ff4b2b; border-color: #ff4b2b; }
+        #winner-info { margin-top: 35px; min-height: 100px; font-size: 2.2rem; color: var(--secondary); font-weight: bold; }
+        .btn-reset { margin-top: 40px; background: transparent; border: 1px solid #444; color: #666; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">GIVISO - LUCKY DRAW ADMIN</div>
-    <div id="adminName">THẦY DẠY CÔNG NGHỆ</div>
+    <div>THẦY DẠY CÔNG NGHỆ</div>
 </div>
 
 <div class="main-layout">
     <div class="sidebar">
-        <h3 style="margin:0; color: #888; text-transform: uppercase; font-size: 0.9rem;">Quét mã để tham gia</h3>
+        <h3 style="margin:0; color: #888; text-transform: uppercase; font-size: 0.9rem;">Học sinh quét mã đăng ký</h3>
         <div id="qrcode"></div>
         <div class="stats-box">
             <span class="stats-num" id="totalCount">0</span>
-            <span style="color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Thí sinh đăng ký</span>
+            <span style="color: #888; font-size: 0.8rem; text-transform: uppercase;">Người tham gia</span>
         </div>
-        <p style="font-size: 0.8rem; color: #555;">Học sinh sẽ thấy kết quả quay trực tiếp trên điện thoại.</p>
     </div>
 
     <div class="wheel-area">
-        <h1 style="color: var(--secondary); text-transform: uppercase; letter-spacing: 8px; font-size: 2.5rem; margin-top: 0;">Vòng Quay May Mắn</h1>
+        <h1 id="mainTitle" style="color: var(--secondary); text-transform: uppercase; letter-spacing: 5px; font-size: 2.5rem; margin-top: 0;">Vòng Quay May Mắn</h1>
         
         <div class="display-area">
             <div id="d1" class="slot">0</div>
@@ -70,11 +71,9 @@
             <div id="d6" class="slot">0</div>
         </div>
 
-        <button id="spinBtn" class="btn-spin" onclick="handleSpin()">QUAY SỐ NGAY</button>
-        
+        <button id="spinBtn" class="btn-spin" onclick="handleSpin()">BẮT ĐẦU QUAY</button>
         <div id="winner-info"></div>
-
-        <button class="btn-reset" onclick="resetSystem()">LÀM MỚI DANH SÁCH</button>
+        <button class="btn-reset" onclick="resetSystem()">LÀM MỚI HỆ THỐNG</button>
     </div>
 </div>
 
@@ -92,24 +91,17 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 2. Tự động tạo mã QR dẫn đến trang đăng ký
+    // 2. Tạo mã QR dẫn đến trang dangky.html
     const registerUrl = window.location.href.replace('index.html', 'dangky.html');
-    new QRCode(document.getElementById("qrcode"), {
-        text: registerUrl,
-        width: 180,
-        height: 180,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-    });
+    new QRCode(document.getElementById("qrcode"), { text: registerUrl, width: 180, height: 180 });
 
-    // 3. Cập nhật số lượng học sinh thời gian thực
+    // 3. Theo dõi số lượng đăng ký Real-time
     db.collection("participants").onSnapshot(snap => {
         document.getElementById('totalCount').innerText = snap.size;
     });
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-    // Hiệu ứng nhảy số từng lồng
     async function spinSingleSlot(slotId, finalValue, duration) {
         const el = document.getElementById(slotId);
         el.classList.add('spinning');
@@ -123,31 +115,29 @@
         el.classList.add('final');
     }
 
-    // HÀM QUAY SỐ CHÍNH
+    // 4. HÀM QUAY SỐ ĐIỀU KHIỂN TOÀN HỆ THỐNG
     async function handleSpin() {
         const btn = document.getElementById('spinBtn');
         const winnerDiv = document.getElementById('winner-info');
         
-        // Bước A: Lấy danh sách học sinh thực tế
         const snapshot = await db.collection("participants").get();
-        if(snapshot.empty) return alert("Chưa có học sinh nào đăng ký tham gia!");
+        if(snapshot.empty) return alert("Chưa có học sinh nào đăng ký!");
 
         btn.disabled = true;
-        winnerDiv.innerHTML = "<span style='color: #888'>Đang khởi động lồng quay...</span>";
+        winnerDiv.innerText = "Đang tìm người may mắn...";
 
-        // Bước B: Reset lồng quay về trạng thái ban đầu
+        // Reset lồng quay
         for(let i=1; i<=6; i++) {
             const el = document.getElementById('d'+i);
-            el.innerText = "0";
-            el.classList.remove('final', 'spinning');
+            el.innerText = "0"; el.classList.remove('final', 'spinning');
         }
 
-        // Bước C: Chọn ngẫu nhiên 1 người thắng trong danh sách
+        // Chọn người thắng ngẫu nhiên từ danh sách
         const participants = snapshot.docs.map(doc => doc.data());
         const winner = participants[Math.floor(Math.random() * participants.length)];
-        const winNum = winner.number; 
+        const winNum = winner.number;
 
-        // Bước D: GỬI LỆNH ĐỒNG BỘ CHO HỌC SINH (Quan trọng nhất)
+        // GỬI LỆNH QUAY ĐẾN TẤT CẢ ĐIỆN THOẠI HỌC SINH
         await db.collection("system_status").doc("current_draw").set({
             winningNumber: winNum,
             winnerName: winner.name,
@@ -155,44 +145,29 @@
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Bước E: Thực hiện hiệu ứng quay trên màn hình Giáo viên
+        // Hiệu ứng quay tại máy Giáo viên
         for (let i = 0; i < 6; i++) {
-            // Mỗi lồng dừng sau các khoảng thời gian tăng dần để kịch tính
             await spinSingleSlot('d' + (i + 1), winNum[i], 3000 + (i * 500)); 
         }
 
-        // Bước F: Hiệu ứng chiến thắng (Pháo hoa)
-        confetti({
-            particleCount: 200,
-            spread: 90,
-            origin: { y: 0.6 }
-        });
-
-        winnerDiv.innerHTML = `CHÚC MỪNG: ${winner.name.toUpperCase()} <br> <span style="font-size: 1.4rem; color: #888;">Lớp: ${winner.class}</span>`;
+        // Pháo hoa và thông báo
+        confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
+        winnerDiv.innerHTML = `CHÚC MƯNG: ${winner.name.toUpperCase()} <br> <span style="font-size: 1.2rem; color: #888;">Lớp: ${winner.class}</span>`;
         
-        // Cập nhật trạng thái kết thúc để điện thoại học sinh dừng quay
-        await db.collection("system_status").doc("current_draw").update({
-            status: "FINISHED"
-        });
-
+        // Cập nhật trạng thái kết thúc
+        await db.collection("system_status").doc("current_draw").update({ status: "FINISHED" });
         btn.disabled = false;
     }
 
-    // Xóa toàn bộ dữ liệu để tổ chức đợt mới
     async function resetSystem() {
-        if(!confirm("Hành động này sẽ xóa sạch danh sách học sinh đã đăng ký. Thầy chắc chắn chứ?")) return;
+        if(!confirm("Xóa toàn bộ danh sách để bắt đầu đợt mới?")) return;
         const snapshot = await db.collection("participants").get();
         const batch = db.batch();
         snapshot.docs.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
-        
-        // Reset luôn trạng thái hệ thống
         await db.collection("system_status").doc("current_draw").delete();
-        
-        alert("Hệ thống đã được làm mới!");
         location.reload();
     }
 </script>
-
 </body>
 </html>
