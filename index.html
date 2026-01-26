@@ -3,114 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quay Số 6 Lồng - 5 Giây/Lồng</title>
+    <title>Giviso - Hệ Thống Quay Số Quản Trị</title>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            display: flex; justify-content: center; align-items: center; 
-            height: 100vh; margin: 0; background-color: #1a1a1a; color: white;
-        }
+        :root { --primary: #ff4b2b; --secondary: #ffc107; --bg: #1a1a1a; --card: #2d2d2d; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .container { text-align: center; background: #2d2d2d; padding: 2.5rem; border-radius: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 95%; max-width: 1000px; }
+        .header { width: 100%; padding: 20px; background: #000; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 2px solid var(--primary); }
+        .logo { font-weight: 900; color: var(--primary); font-size: 1.5rem; letter-spacing: 2px; }
         
-        h1 { font-size: 2.2rem; color: #ffc107; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 3px; }
-
-        .display-area { display: flex; justify-content: center; gap: 15px; margin-bottom: 3rem; }
-
-        .slot-box { display: flex; flex-direction: column; align-items: center; }
-
-        .slot {
-            background: #000;
-            width: 110px; height: 170px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 7rem; font-weight: 900;
-            color: #333; /* Màu khi chưa quay */
-            border-radius: 15px;
-            border: 3px solid #444;
-            transition: all 0.2s;
-        }
-
-        /* Hiệu ứng khi lồng đang quay */
+        .main-layout { display: flex; gap: 30px; padding: 40px; max-width: 1200px; width: 100%; box-sizing: border-box; }
+        
+        /* CỘT TRÁI: ĐIỀU KHIỂN & QR */
+        .sidebar { flex: 1; background: var(--card); padding: 30px; border-radius: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #qrcode { background: white; padding: 15px; border-radius: 15px; display: inline-block; margin: 20px 0; }
+        .stats-box { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #444; margin: 20px 0; }
+        .stats-num { font-size: 3rem; font-weight: 900; color: var(--secondary); display: block; }
+        
+        /* CỘT PHẢI: LỒNG QUAY */
+        .wheel-area { flex: 2; text-align: center; }
+        .display-area { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; }
+        .slot { background: #000; width: 90px; height: 140px; display: flex; justify-content: center; align-items: center; font-size: 6rem; font-weight: 900; color: #333; border-radius: 15px; border: 3px solid #444; transition: 0.2s; }
         .spinning { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
+        .final { color: #ffffff; border-color: var(--secondary); text-shadow: 0 0 15px var(--secondary); }
         
-        /* Hiệu ứng khi đã có kết quả */
-        .final { color: #ffffff; border-color: #ffc107; text-shadow: 0 0 15px #ffc107; }
-
-        .label { font-size: 0.8rem; color: #888; margin-top: 10px; text-transform: uppercase; font-weight: bold; }
-
-        button { 
-            padding: 20px 60px; font-size: 2rem; font-weight: bold;
-            cursor: pointer; background: linear-gradient(145deg, #ff416c, #ff4b2b);
-            color: white; border: none; border-radius: 50px;
-            box-shadow: 0 8px #b91d1d; transition: 0.1s;
-        }
-
-        button:active { transform: translateY(4px); box-shadow: 0 4px #b91d1d; }
-        button:disabled { background: #555; box-shadow: 0 4px #333; cursor: not-allowed; opacity: 0.7; }
+        .btn-spin { padding: 25px 80px; font-size: 2rem; font-weight: bold; cursor: pointer; background: linear-gradient(145deg, #ff416c, #ff4b2b); color: white; border: none; border-radius: 60px; box-shadow: 0 10px #b91d1d; transition: 0.1s; }
+        .btn-spin:active { transform: translateY(5px); box-shadow: 0 5px #b91d1d; }
+        .btn-spin:disabled { background: #555; box-shadow: 0 5px #333; cursor: not-allowed; opacity: 0.5; }
+        
+        #winner-info { margin-top: 30px; height: 80px; font-size: 1.8rem; color: var(--secondary); font-weight: bold; }
+        .btn-reset { margin-top: 50px; background: transparent; border: 1px solid #555; color: #888; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>HỆ THỐNG QUAY SỐ</h1>
-    
-    <div class="display-area">
-        <div class="slot-box"><div id="d1" class="slot">0</div><div class="label">Lồng 1</div></div>
-        <div class="slot-box"><div id="d2" class="slot">0</div><div class="label">Lồng 2</div></div>
-        <div class="slot-box"><div id="d3" class="slot">0</div><div class="label">Lồng 3</div></div>
-        <div class="slot-box"><div id="d4" class="slot">0</div><div class="label">Lồng 4</div></div>
-        <div class="slot-box"><div id="d5" class="slot">0</div><div class="label">Lồng 5</div></div>
-        <div class="slot-box"><div id="d6" class="slot">0</div><div class="label">Lồng 6</div></div>
+<div class="header">
+    <div class="logo">GIVISO - ADMIN PANEL</div>
+    <div>THẦY DẠY CÔNG NGHỆ</div>
+</div>
+
+<div class="main-layout">
+    <div class="sidebar">
+        <h3 style="margin:0; color: #888; text-transform: uppercase; font-size: 0.9rem;">Học sinh quét mã để đăng ký</h3>
+        <div id="qrcode"></div>
+        <div class="stats-box">
+            <span class="stats-num" id="totalCount">0</span>
+            <span style="color: #888; font-size: 0.8rem; text-transform: uppercase;">Người đã đăng ký</span>
+        </div>
+        <p style="font-size: 0.8rem; color: #666;">Hệ thống sẽ chọn ngẫu nhiên trong danh sách trên.</p>
     </div>
 
-    <button id="spinBtn" onclick="handleSpin()">BẮT ĐẦU QUAY</button>
+    <div class="wheel-area">
+        <h1 style="color: var(--secondary); text-transform: uppercase; letter-spacing: 5px;">Vòng Quay May Mắn</h1>
+        
+        <div class="display-area">
+            <div id="d1" class="slot">0</div>
+            <div id="d2" class="slot">0</div>
+            <div id="d3" class="slot">0</div>
+            <div id="d4" class="slot">0</div>
+            <div id="d5" class="slot">0</div>
+            <div id="d6" class="slot">0</div>
+        </div>
+
+        <button id="spinBtn" class="btn-spin" onclick="handleSpin()">BẮT ĐẦU QUAY</button>
+        
+        <div id="winner-info"></div>
+
+        <button class="btn-reset" onclick="resetSystem()">Reset hệ thống</button>
+    </div>
 </div>
 
 <script>
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    // 1. Cấu hình Firebase của thầy
+    const firebaseConfig = {
+        apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
+        authDomain: "chamtn-26e8f.firebaseapp.com",
+        projectId: "chamtn-26e8f",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // 2. Tạo mã QR (Thầy thay link bằng link trang đăng ký của học sinh sau khi upload)
+    const registerUrl = window.location.href.replace('index.html', 'dangky.html');
+    new QRCode(document.getElementById("qrcode"), {
+        text: registerUrl,
+        width: 180,
+        height: 180
+    });
+
+    // 3. Theo dõi số lượng đăng ký Real-time
+    db.collection("participants").onSnapshot(snap => {
+        document.getElementById('totalCount').innerText = snap.size;
+    });
+
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
     async function spinSingleSlot(slotId, finalValue, duration) {
-        const slot = document.getElementById(slotId);
-        slot.classList.add('spinning');
-        
-        let startTime = Date.now();
-        
-        while (Date.now() - startTime < duration) {
-            slot.innerText = Math.floor(Math.random() * 10);
-            await sleep(50); // Tốc độ nhảy số nhanh hơn chút cho mượt
+        const el = document.getElementById(slotId);
+        el.classList.add('spinning');
+        let start = Date.now();
+        while (Date.now() - start < duration) {
+            el.innerText = Math.floor(Math.random() * 10);
+            await sleep(60);
         }
-        
-        slot.innerText = finalValue;
-        slot.classList.remove('spinning');
-        slot.classList.add('final');
+        el.innerText = finalValue;
+        el.classList.remove('spinning');
+        el.classList.add('final');
     }
 
     async function handleSpin() {
         const btn = document.getElementById('spinBtn');
-        const slotsIds = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'];
+        const winnerDiv = document.getElementById('winner-info');
         
-        // Bước 1: Vô hiệu hóa nút và Reset toàn bộ về 0 ngay lập tức
+        // Lấy danh sách thực tế
+        const snapshot = await db.collection("participants").get();
+        if(snapshot.empty) return alert("Chưa có học sinh nào đăng ký!");
+
         btn.disabled = true;
-        slotsIds.forEach(id => {
-            const el = document.getElementById(id);
+        winnerDiv.innerText = "Đang tìm người may mắn...";
+
+        // Reset lồng quay
+        for(let i=1; i<=6; i++) {
+            const el = document.getElementById('d'+i);
             el.innerText = "0";
             el.classList.remove('final', 'spinning');
-            el.style.color = "#333"; // Màu tối trạng thái chờ
-        });
-
-        // Chờ một chút ngắn để tạo cảm giác "chuẩn bị" (0.5 giây)
-        await sleep(500);
-
-        // Bước 2: Tạo số ngẫu nhiên từ 0 đến 1300
-        const randomNum = Math.floor(Math.random() * 1301);
-        const finalString = "00" + randomNum.toString().padStart(4, '0');
-        
-        // Bước 3: Quay từng lồng tuần tự, mỗi lồng 5000ms (5 giây)
-        for (let i = 0; i < slotsIds.length; i++) {
-            await spinSingleSlot(slotsIds[i], finalString[i], 5000);
         }
-        
+
+        // Chọn người thắng từ Firebase
+        const participants = snapshot.docs.map(doc => doc.data());
+        const winner = participants[Math.floor(Math.random() * participants.length)];
+        const winNum = winner.number; // Dãy số 6 chữ số ngẫu nhiên
+
+        // Quay từng lồng (Tăng kịch tính)
+        for (let i = 0; i < 6; i++) {
+            await spinSingleSlot('d' + (i + 1), winNum[i], 3000 + (i * 500)); 
+        }
+
+        winnerDiv.innerHTML = `CHÚC MƯNG: ${winner.name} <br> <span style="font-size: 1.2rem; color: #888;">Lớp: ${winner.class}</span>`;
         btn.disabled = false;
+    }
+
+    async function resetSystem() {
+        if(!confirm("Xóa toàn bộ danh sách đăng ký hiện tại?")) return;
+        const snapshot = await db.collection("participants").get();
+        const batch = db.batch();
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+        alert("Đã làm mới hệ thống!");
+        location.reload();
     }
 </script>
 
