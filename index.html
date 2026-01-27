@@ -2,202 +2,143 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giviso Pro - Trung Tâm Điều Phối</title>
+    <title>Giviso Pro - Quản Trị Viên</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
     <style>
-        :root { --primary: #ff4b2b; --secondary: #ffc107; --bg: #121212; --card: #1e1e1e; --blue: #007bff; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        :root { --primary: #ff4b2b; --blue: #007bff; --bg: #121212; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; }
+        .header { background: #000; padding: 20px; border-bottom: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .main-container { display: flex; padding: 20px; gap: 20px; max-width: 1200px; margin: auto; }
+        .card { background: #1e1e1e; border-radius: 20px; padding: 25px; border: 1px solid #333; flex: 3; }
+        .sidebar { flex: 1; background: #1e1e1e; border-radius: 20px; padding: 20px; }
         
-        /* Header & Navigation */
-        .header { width: 100%; padding: 15px 30px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); box-sizing: border-box; }
-        .tab-container { display: flex; gap: 10px; margin: 20px 0; }
-        .tab { padding: 12px 30px; border-radius: 50px; cursor: pointer; font-weight: bold; background: #333; color: #888; transition: 0.3s; border: none; }
-        .tab.active { background: var(--blue); color: white; box-shadow: 0 0 15px rgba(0,123,255,0.5); }
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .tab { padding: 10px 25px; border-radius: 30px; border: none; cursor: pointer; background: #333; color: #888; font-weight: bold; }
+        .tab.active { background: var(--blue); color: white; }
 
-        .main-layout { display: flex; gap: 20px; padding: 20px; max-width: 1300px; width: 100%; box-sizing: border-box; }
-        
-        /* Sidebar QR & Stats */
-        .sidebar { flex: 1; background: var(--card); padding: 25px; border-radius: 25px; text-align: center; border: 1px solid #333; }
-        #qrcode { background: white; padding: 10px; border-radius: 12px; display: inline-block; margin-bottom: 15px; }
-        .stats-box { background: #000; padding: 15px; border-radius: 15px; border: 1px solid #444; }
-
-        /* Panel Nội dung */
-        .content-area { flex: 3; background: var(--card); border-radius: 25px; padding: 40px; text-align: center; border: 1px solid #333; }
-        
-        /* Quay số */
-        .slot-group { display: flex; justify-content: center; gap: 10px; margin: 40px 0; }
-        .slot { background: #000; width: 90px; height: 140px; display: flex; justify-content: center; align-items: center; font-size: 6rem; font-weight: 900; color: #333; border-radius: 15px; border: 3px solid #444; }
+        /* Lottery & Quiz UI */
+        .slot-box { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
+        .slot { width: 70px; height: 110px; background: #000; border: 2px solid #444; border-radius: 10px; font-size: 4rem; display: flex; align-items: center; justify-content: center; }
         .spinning { color: #00ff00; border-color: #00ff00; }
-        .final { color: white; border-color: var(--secondary); text-shadow: 0 0 20px var(--secondary); }
+        .final { color: gold; border-color: gold; }
 
-        /* Trả lời nhanh */
-        .buzzer-display { background: #000; border: 5px solid var(--blue); border-radius: 30px; padding: 50px; margin: 30px 0; position: relative; overflow: hidden; }
-        #fastestName { font-size: 4rem; color: #00ff00; font-weight: 900; text-transform: uppercase; text-shadow: 0 0 20px rgba(0,255,0,0.5); }
-
-        .btn-action { padding: 20px 60px; font-size: 1.5rem; font-weight: bold; cursor: pointer; background: linear-gradient(145deg, #ff416c, #ff4b2b); color: white; border: none; border-radius: 50px; box-shadow: 0 8px #b91d1d; transition: 0.1s; }
-        .btn-action:active { transform: translateY(4px); box-shadow: 0 4px #000; }
-        .btn-blue { background: linear-gradient(145deg, #007bff, #0056b3); box-shadow: 0 8px #004085; }
+        input, textarea { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: none; background: #2d2d2d; color: white; }
+        .btn-action { padding: 15px 40px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; border: none; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="font-weight: 900; color: var(--primary); font-size: 1.5rem; letter-spacing: 2px;">GIVISO PRO</div>
-    <div style="color: #666;">HỆ THỐNG ĐIỀU PHỐI LỚP HỌC</div>
+    <div style="font-weight: 900; color: var(--primary);">GIVISO PRO - HỆ THỐNG DẠY HỌC</div>
+    <div id="status" style="color: #00ff00; font-size: 0.8rem;">● ĐANG TRỰC TUYẾN</div>
 </div>
 
-<div class="tab-container">
-    <button id="tabLucky" class="tab active" onclick="switchMode('lucky')">QUAY SỐ MAY MẮN</button>
-    <button id="tabQuiz" class="tab" onclick="switchMode('quiz')">BẤM CHUÔNG NHANH</button>
-</div>
-
-<div class="main-layout">
+<div class="main-container">
     <div class="sidebar">
-        <div id="qrcode"></div>
-        <div class="stats-box">
-            <span id="totalCount" style="font-size: 3rem; font-weight: 900; color: var(--secondary);">0</span>
-            <div style="font-size: 0.8rem; color: #666;">HỌC SINH ĐÃ ĐĂNG KÝ</div>
+        <div id="qrcode" style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 15px;"></div>
+        <div style="background: #000; padding: 15px; border-radius: 15px;">
+            <div style="font-size: 0.8rem; color: #666;">ĐÃ THAM GIA</div>
+            <div id="totalCount" style="font-size: 2.5rem; font-weight: 900; color: gold;">0</div>
         </div>
-        <button onclick="clearData()" style="margin-top:30px; background:none; border:none; color:#444; cursor:pointer; text-decoration:underline;">Xóa danh sách</button>
     </div>
 
-    <div class="content-area">
-        <div id="luckyPanel">
-            <h2 style="color: var(--secondary); letter-spacing: 3px;">VÒNG QUAY MAY MẮN</h2>
-            <div class="slot-group">
+    <div class="card">
+        <div class="tabs">
+            <button id="tLucky" class="tab active" onclick="switchMode('lucky')">QUAY SỐ</button>
+            <button id="tQuiz" class="tab" onclick="switchMode('quiz')">TRẮC NGHIỆM</button>
+        </div>
+
+        <div id="luckySection">
+            <div class="slot-box">
                 <div id="d1" class="slot">0</div><div id="d2" class="slot">0</div>
                 <div id="d3" class="slot">0</div><div id="d4" class="slot">0</div>
                 <div id="d5" class="slot">0</div><div id="d6" class="slot">0</div>
             </div>
-            <button id="spinBtn" class="btn-action" onclick="handleSpin()">BẮT ĐẦU QUAY</button>
-            <div id="winnerResult" style="margin-top:25px; font-size: 2rem; color: var(--secondary); font-weight:bold;"></div>
+            <button class="btn-action" style="background: var(--primary); color: white;" onclick="handleSpin()">BẮT ĐẦU QUAY</button>
         </div>
 
-        <div id="quizPanel" style="display:none;">
-            <h2 style="color: var(--blue); letter-spacing: 3px;">AI NHANH TAY HƠN?</h2>
-            <div class="buzzer-display">
-                <div style="color: #444; font-size: 0.9rem; margin-bottom: 10px;">NGƯỜI BẤM CHUÔNG ĐẦU TIÊN</div>
-                <div id="fastestName">SẴN SÀNG...</div>
+        <div id="quizSection" style="display:none;">
+            <textarea id="qText" placeholder="Nhập câu hỏi..."></textarea>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input id="ansA" placeholder="Đáp án A"> <input id="ansB" placeholder="Đáp án B">
+                <input id="ansC" placeholder="Đáp án C"> <input id="ansD" placeholder="Đáp án D">
             </div>
-            <div style="display:flex; gap:15px; justify-content:center;">
-                <button class="btn-action btn-blue" onclick="openBuzzer()">MỞ CHUÔNG</button>
-                <button class="btn-action" style="background:#444; box-shadow:0 8px #222;" onclick="resetBuzzer()">RESET</button>
-            </div>
+            <button class="btn-action" style="background: var(--blue); color: white;" onclick="pushQuiz()">CHUYỂN CÂU & MỞ CHUÔNG</button>
+            <div id="winner" style="margin-top: 20px; font-size: 2rem; color: #00ff00;"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // Cấu hình Firebase
+    // --- COPY CẤU HÌNH FIREBASE CỦA THẦY VÀO ĐÂY ---
     const firebaseConfig = {
         apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
         authDomain: "chamtn-26e8f.firebaseapp.com",
         projectId: "chamtn-26e8f",
-        storageBucket: "chamtn-26e8f.firebasestorage.app",
-        messagingSenderId: "130850297017",
-        appId: "1:130850297017:web:05913bb70050cd32593768",
-        measurementId: "G-Y1L9DC9DZS"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ÂM THANH [Mới bổ sung]
-    const buzzerSound = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
-    const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+    const bell = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
-    // QR Code tự động
+    // Khởi tạo QR
     const regUrl = window.location.href.replace('index.html', 'dangky.html');
-    new QRCode(document.getElementById("qrcode"), { text: regUrl, width: 160, height: 160 });
+    new QRCode(document.getElementById("qrcode"), { text: regUrl, width: 140, height: 140 });
 
-    // Theo dõi số lượng HS
+    // Sync Stats
     db.collection("participants").onSnapshot(s => document.getElementById('totalCount').innerText = s.size);
 
-    function switchMode(mode) {
-        document.getElementById('luckyPanel').style.display = mode === 'lucky' ? 'block' : 'none';
-        document.getElementById('quizPanel').style.display = mode === 'quiz' ? 'block' : 'none';
-        document.getElementById('tabLucky').className = `tab ${mode === 'lucky' ? 'active' : ''}`;
-        document.getElementById('tabQuiz').className = `tab ${mode === 'quiz' ? 'active' : ''}`;
-        db.collection("system_status").doc("mode").set({ current: mode });
+    function switchMode(m) {
+        document.getElementById('luckySection').style.display = m==='lucky'?'block':'none';
+        document.getElementById('quizSection').style.display = m==='quiz'?'block':'none';
+        document.getElementById('tLucky').className = `tab ${m==='lucky'?'active':''}`;
+        document.getElementById('tQuiz').className = `tab ${m==='quiz'?'active':''}`;
+        db.collection("system_status").doc("mode").set({ current: m });
     }
 
-    // LOGIC QUAY SỐ
     async function handleSpin() {
-        const snap = await db.collection("participants").get();
-        if(snap.empty) return alert("Chưa có học sinh đăng ký!");
+        const s = await db.collection("participants").get();
+        if(s.empty) return;
+        const list = s.docs.map(d => d.data());
+        const win = list[Math.floor(Math.random()*list.length)];
         
-        document.getElementById('spinBtn').disabled = true;
-        document.getElementById('winnerResult').innerText = "";
-        
-        const list = snap.docs.map(d => d.data());
-        const winner = list[Math.floor(Math.random() * list.length)];
-        
-        // Gửi lệnh quay cho HS
         await db.collection("system_status").doc("current_draw").set({
-            winningNumber: winner.number, status: "SPINNING", timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            winningNumber: win.number, status: "SPINNING", ts: Date.now()
         });
 
-        // Hiệu ứng quay tại máy GV
         for(let i=0; i<6; i++) {
             const el = document.getElementById('d'+(i+1));
-            el.classList.remove('final'); el.classList.add('spinning');
-            let startTime = Date.now();
-            while(Date.now() - startTime < (3000 + i*500)) {
+            el.classList.add('spinning');
+            let start = Date.now();
+            while(Date.now()-start < (2000+i*500)) {
                 el.innerText = Math.floor(Math.random()*10);
                 await new Promise(r => setTimeout(r, 60));
             }
-            el.innerText = winner.number[i];
-            el.classList.remove('spinning'); el.classList.add('final');
+            el.innerText = win.number[i]; el.classList.remove('spinning'); el.classList.add('final');
         }
-
-        winSound.play();
-        confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
-        document.getElementById('winnerResult').innerText = `CHÚC MỪNG: ${winner.name.toUpperCase()}`;
-        document.getElementById('spinBtn').disabled = false;
-        await db.collection("system_status").doc("current_draw").update({ status: "FINISHED" });
+        confetti();
+        await db.collection("system_status").doc("current_draw").update({ status: "DONE" });
     }
 
-    // LOGIC TRẢ LỜI NHANH [Mới bổ sung âm thanh]
-    async function openBuzzer() {
-        document.getElementById('fastestName').innerText = "ĐANG ĐỢI...";
-        await db.collection("system_status").doc("quiz_state").set({ status: "OPEN", winner: "", time: null });
+    async function pushQuiz() {
+        document.getElementById('winner').innerText = "ĐANG ĐỢI...";
+        await db.collection("system_status").doc("quiz").set({
+            q: document.getElementById('qText').value,
+            opts: [document.getElementById('ansA').value, document.getElementById('ansB').value, document.getElementById('ansC').value, document.getElementById('ansD').value],
+            status: "OPEN", winner: ""
+        });
     }
 
-    async function resetBuzzer() {
-        document.getElementById('fastestName').innerText = "ĐÃ RESET";
-        await db.collection("system_status").doc("quiz_state").set({ status: "CLOSED", winner: "", time: null });
-    }
-
-    // Lắng nghe xem ai bấm chuông
-    db.collection("system_status").doc("quiz_state").onSnapshot(doc => {
+    db.collection("system_status").doc("quiz").onSnapshot(doc => {
         if(doc.exists && doc.data().winner) {
-            const data = doc.data();
-            if(window.lastBuzzerWinner !== data.winner) {
-                window.lastBuzzerWinner = data.winner;
-                
-                // PHÁT TIẾNG CHUÔNG TRÊN MÁY GV
-                buzzerSound.play();
-                
-                document.getElementById('fastestName').innerText = data.winner;
-                confetti({ particleCount: 100, spread: 100, colors: ['#007bff', '#ffffff'] });
-            }
+            document.getElementById('winner').innerText = "🔔 " + doc.data().winner;
+            bell.play();
         }
     });
-
-    async function clearData() {
-        if(confirm("Xóa toàn bộ học sinh?")) {
-            const snap = await db.collection("participants").get();
-            const batch = db.batch();
-            snap.docs.forEach(d => batch.delete(d.ref));
-            await batch.commit();
-            alert("Đã xóa!");
-            location.reload();
-        }
-    }
 </script>
 </body>
 </html>
