@@ -1,17 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Giviso Pro - Quản Trị Viên (Full)</title>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --primary: #ff4b2b; --blue: #007bff; --bg: #121212; --card: #1e1e1e; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; }
+        .header { background: #000; padding: 15px 30px; border-bottom: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .main-container { display: flex; padding: 20px; gap: 20px; max-width: 1200px; margin: auto; }
+        .card { background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid #333; flex: 3; }
+        .sidebar { flex: 1; background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #333; }
+        
+        /* Tabs Điều khiển */
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; }
+        .tab { padding: 12px 30px; border-radius: 30px; border: none; cursor: pointer; background: #333; color: #888; font-weight: bold; transition: 0.3s; }
+        .tab.active { background: var(--blue); color: white; box-shadow: 0 0 15px rgba(0,123,255,0.4); }
+
+        /* Giao diện Quay số */
+        .slot-box { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
+        .slot { width: 80px; height: 130px; background: #000; border: 3px solid #444; border-radius: 15px; font-size: 5.5rem; font-weight: 900; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .spinning { color: #00ff00; border-color: #00ff00; }
+        .final { color: gold; border-color: gold; text-shadow: 0 0 15px gold; }
+
+        /* Giao diện Trắc nghiệm */
+        input, textarea { width: 100%; padding: 15px; margin: 8px 0; border-radius: 10px; border: none; background: #2d2d2d; color: white; box-sizing: border-box; font-size: 1rem; }
+        .quiz-display { background: #000; border: 3px solid var(--blue); border-radius: 20px; padding: 30px; margin: 20px 0; }
+        #fastestName { font-size: 3.5rem; color: #00ff00; font-weight: 900; min-height: 1.2em; text-transform: uppercase; }
+
+        .btn-action { padding: 18px 50px; font-size: 1.3rem; font-weight: bold; border-radius: 50px; border: none; cursor: pointer; margin-top: 15px; transition: 0.1s; }
+        .btn-action:active { transform: translateY(4px); }
+        .btn-reset { background: none; border: 1px solid #444; color: #666; padding: 8px 15px; border-radius: 8px; cursor: pointer; margin-top: 20px; }
+        .btn-reset:hover { color: var(--primary); border-color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div style="font-weight: 900; color: var(--primary); font-size: 1.5rem; letter-spacing: 2px;">GIVISO PRO - ADMIN</div>
+    <div id="status" style="color: #00ff00; font-size: 0.9rem; font-weight: bold;">● LIVE ĐỒNG BỘ</div>
+</div>
+
 <div class="main-container">
     <div class="sidebar">
-        <div id="qrcode" style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 15px;"></div>
-        <div style="background: #000; padding: 15px; border-radius: 15px;">
-            <div style="font-size: 0.8rem; color: #666;">ĐÃ THAM GIA</div>
-            <div id="totalCount" style="font-size: 2.5rem; font-weight: 900; color: gold;">0</div>
+        <div id="qrcode" style="background: white; padding: 10px; border-radius: 10px; margin-bottom: 20px;"></div>
+        <div style="background: #000; padding: 20px; border-radius: 20px; border: 1px solid #333;">
+            <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">HỌC SINH ONLINE</div>
+            <div id="totalCount" style="font-size: 3rem; font-weight: 900; color: gold;">0</div>
         </div>
-        <button onclick="resetSystemData()" style="margin-top: 20px; background: none; border: 1px solid #444; color: #666; cursor: pointer; padding: 5px 10px; border-radius: 5px;">Xóa danh sách lớp</button>
+        <button class="btn-reset" onclick="resetSystemData()">Xóa danh sách lớp</button>
     </div>
 
     <div class="card">
         <div class="tabs">
-            <button id="tLucky" class="tab active" onclick="switchMode('lucky')">QUAY SỐ</button>
-            <button id="tQuiz" class="tab" onclick="switchMode('quiz')">TRẮC NGHIỆM</button>
+            <button id="tLucky" class="tab active" onclick="switchMode('lucky')">1. QUAY SỐ MAY MẮN</button>
+            <button id="tQuiz" class="tab" onclick="switchMode('quiz')">2. TRẮC NGHIỆM BẤM CHUÔNG</button>
         </div>
 
         <div id="luckySection">
@@ -20,31 +66,65 @@
                 <div id="d3" class="slot">0</div><div id="d4" class="slot">0</div>
                 <div id="d5" class="slot">0</div><div id="d6" class="slot">0</div>
             </div>
-            <div id="luckyWinnerName" style="font-size: 2rem; color: gold; font-weight: bold; margin: 15px 0; min-height: 40px;"></div>
-            <button class="btn-action" style="background: var(--primary); color: white;" onclick="handleSpin()">BẮT ĐẦU QUAY</button>
+            <div id="luckyWinnerName" style="font-size: 2.2rem; color: gold; font-weight: bold; margin: 20px 0; min-height: 50px;"></div>
+            <button id="spinBtn" class="btn-action" style="background: var(--primary); color: white; box-shadow: 0 8px #b91d1d;" onclick="handleSpin()">BẤM ĐỂ QUAY SỐ</button>
         </div>
 
         <div id="quizSection" style="display:none;">
-            <textarea id="qText" placeholder="Nhập câu hỏi..."></textarea>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input id="ansA" placeholder="Đáp án A"> <input id="ansB" placeholder="Đáp án B">
-                <input id="ansC" placeholder="Đáp án C"> <input id="ansD" placeholder="Đáp án D">
+            <div style="text-align: left; margin-bottom: 20px;">
+                <textarea id="qText" placeholder="Nhập nội dung câu hỏi..."></textarea>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input id="ansA" placeholder="Đáp án A"> <input id="ansB" placeholder="Đáp án B">
+                    <input id="ansC" placeholder="Đáp án C"> <input id="ansD" placeholder="Đáp án D">
+                </div>
             </div>
-            <button class="btn-action" style="background: var(--blue); color: white;" onclick="pushQuiz()">CHUYỂN CÂU & MỞ CHUÔNG</button>
-            <div id="winner" style="margin-top: 20px; font-size: 2rem; color: #00ff00; font-weight: bold;"></div>
-            <button onclick="resetQuizOnly()" style="margin-top: 10px; background: #333; color: #888; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Làm trống câu hỏi & chuông</button>
+            <div class="quiz-display">
+                <div id="fastestName">SẴN SÀNG...</div>
+                <div style="color: #444; font-size: 0.9rem; letter-spacing: 2px; margin-top: 10px;">NGƯỜI BẤM CHUÔNG ĐẦU TIÊN</div>
+            </div>
+            <button class="btn-action" style="background: var(--blue); color: white; box-shadow: 0 8px #004085;" onclick="pushQuiz()">CHUYỂN CÂU & MỞ CHUÔNG</button>
+            <br>
+            <button class="btn-reset" onclick="resetQuizOnly()">Làm trống câu hỏi & Chuông</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ... Phần config Firebase giữ nguyên ...
+    // --- THẦY DÁN CONFIG FIREBASE CỦA THẦY VÀO ĐÂY ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
+        authDomain: "chamtn-26e8f.firebaseapp.com",
+        projectId: "chamtn-26e8f",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
+    const bell = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+
+    // Khởi tạo QR dẫn tới trang dangky.html
+    const regUrl = window.location.href.replace('index.html', 'dangky.html');
+    new QRCode(document.getElementById("qrcode"), { text: regUrl, width: 140, height: 140 });
+
+    // Cập nhật số lượng học sinh online
+    db.collection("participants").onSnapshot(s => document.getElementById('totalCount').innerText = s.size);
+
+    // Chuyển chế độ (Quay số <-> Trắc nghiệm)
+    function switchMode(m) {
+        document.getElementById('luckySection').style.display = m==='lucky'?'block':'none';
+        document.getElementById('quizSection').style.display = m==='quiz'?'block':'none';
+        document.getElementById('tLucky').className = `tab ${m==='lucky'?'active':''}`;
+        document.getElementById('tQuiz').className = `tab ${m==='quiz'?'active':''}`;
+        db.collection("system_status").doc("mode").set({ current: m });
+    }
+
+    // --- LOGIC QUAY SỐ ---
     async function handleSpin() {
         const s = await db.collection("participants").get();
         if(s.empty) return alert("Chưa có học sinh nào đăng ký!");
         
+        document.getElementById('spinBtn').disabled = true;
         document.getElementById('luckyWinnerName').innerText = "ĐANG TÌM CHỦ NHÂN...";
+
         const list = s.docs.map(d => d.data());
         const win = list[Math.floor(Math.random()*list.length)];
         
@@ -52,7 +132,7 @@
             winningNumber: win.number, status: "SPINNING", ts: Date.now()
         });
 
-        // Hiệu ứng quay lồng
+        // Hiệu ứng quay số
         for(let i=0; i<6; i++) {
             const el = document.getElementById('d'+(i+1));
             el.classList.remove('final'); el.classList.add('spinning');
@@ -64,38 +144,53 @@
             el.innerText = win.number[i]; el.classList.remove('spinning'); el.classList.add('final');
         }
 
-        // HIỂN THỊ TÊN SAU KHI QUAY XONG
         document.getElementById('luckyWinnerName').innerText = "CHÚC MỪNG: " + win.name.toUpperCase();
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        document.getElementById('spinBtn').disabled = false;
         await db.collection("system_status").doc("current_draw").update({ status: "DONE" });
     }
 
-    // HÀM RESET DỮ LIỆU TOÀN HỆ THỐNG (Dùng khi sang lớp mới)
-    async function resetSystemData() {
-        if(confirm("Thầy có chắc chắn muốn xóa danh sách học sinh và kết quả cũ không?")) {
-            const batch = db.batch();
-            const users = await db.collection("participants").get();
-            users.forEach(doc => batch.delete(doc.ref));
-            
-            batch.set(db.collection("system_status").doc("quiz"), { status: "CLOSED", winner: "", q: "" });
-            batch.set(db.collection("system_status").doc("current_draw"), { status: "IDLE" });
-            
-            await batch.commit();
-            alert("Đã xóa sạch dữ liệu!");
-            location.reload();
-        }
+    // --- LOGIC TRẮC NGHIỆM ---
+    async function pushQuiz() {
+        const q = document.getElementById('qText').value;
+        if(!q) return alert("Thầy hãy nhập nội dung câu hỏi!");
+        
+        document.getElementById('fastestName').innerText = "ĐANG ĐỢI...";
+        await db.collection("system_status").doc("quiz").set({
+            q: q,
+            opts: [document.getElementById('ansA').value, document.getElementById('ansB').value, document.getElementById('ansC').value, document.getElementById('ansD').value],
+            status: "OPEN", winner: ""
+        });
     }
 
-    // HÀM RESET RIÊNG CHO PHẦN CHUÔNG
+    // Lắng nghe người bấm chuông nhanh nhất
+    db.collection("system_status").doc("quiz").onSnapshot(doc => {
+        if(doc.exists && doc.data().winner) {
+            document.getElementById('fastestName').innerText = doc.data().winner;
+            bell.play();
+            confetti({ particleCount: 50, spread: 60, colors: ['#007bff'] });
+        }
+    });
+
+    // --- CÁC HÀM RESET ---
     async function resetQuizOnly() {
-        document.getElementById('winner').innerText = "";
+        document.getElementById('fastestName').innerText = "SẴN SÀNG...";
         document.getElementById('qText').value = "";
-        document.getElementById('ansA').value = "";
-        document.getElementById('ansB').value = "";
-        document.getElementById('ansC').value = "";
-        document.getElementById('ansD').value = "";
+        document.getElementById('ansA').value = ""; document.getElementById('ansB').value = "";
+        document.getElementById('ansC').value = ""; document.getElementById('ansD').value = "";
         await db.collection("system_status").doc("quiz").set({ status: "CLOSED", winner: "", q: "", opts: ["","","",""] });
     }
 
-    // ... Các hàm khác giữ nguyên ...
+    async function resetSystemData() {
+        if(confirm("Thầy có chắc muốn xóa sạch danh sách học sinh để bắt đầu tiết mới?")) {
+            const batch = db.batch();
+            const snap = await db.collection("participants").get();
+            snap.docs.forEach(d => batch.delete(d.ref));
+            await batch.commit();
+            alert("Đã làm mới hệ thống!");
+            location.reload();
+        }
+    }
 </script>
+</body>
+</html>
