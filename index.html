@@ -2,22 +2,22 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Giviso Pro Admin - Điều Phối Lớp Học</title>
+    <title>Giviso Pro Admin - Quản Lý Lớp Học</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --primary: #ff4b2b; --blue: #007bff; --bg: #0f0f0f; --card: #1a1a1a; --gold: #ffc107; }
+        :root { --primary: #ff4b2b; --blue: #007bff; --bg: #0f0f0f; --card: #1a1a1a; --gold: #ffc107; --danger: #dc3545; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
         .header { width: 100%; padding: 15px 30px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); box-sizing: border-box; }
         .main-layout { display: flex; gap: 20px; padding: 25px; max-width: 1300px; width: 100%; box-sizing: border-box; }
         
-        /* Cột bên: QR và Thống kê */
+        /* Cột bên */
         .sidebar { flex: 1; background: var(--card); padding: 25px; border-radius: 25px; border: 1px solid #333; text-align: center; }
         #qrcode { background: white; padding: 12px; border-radius: 12px; display: inline-block; margin-bottom: 20px; }
-        .stats { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #444; }
+        .stats { background: #000; padding: 20px; border-radius: 20px; border: 1px solid #444; margin-bottom: 15px; }
 
         /* Vùng nội dung chính */
         .content { flex: 3; background: var(--card); border-radius: 25px; padding: 35px; border: 1px solid #333; text-align: center; }
@@ -30,43 +30,47 @@
         .slot { 
             width: 85px; height: 140px; background: #000; border: 3px solid #444; border-radius: 18px; 
             font-size: 6rem; font-weight: 900; display: flex; align-items: center; justify-content: center; 
-            transition: 0.2s; box-shadow: inset 0 0 20px rgba(0,0,0,1);
+            box-shadow: inset 0 0 20px rgba(0,0,0,1);
         }
-        .spinning { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 20px rgba(0,255,0,0.3); }
-        .final { color: white; border-color: var(--gold); text-shadow: 0 0 20px var(--gold); box-shadow: 0 0 25px rgba(255,193,7,0.2); }
+        .spinning { color: #00ff00; border-color: #00ff00; }
+        .final { color: white; border-color: var(--gold); text-shadow: 0 0 20px var(--gold); }
 
-        /* Trắc nghiệm */
+        /* Nút bấm */
+        .btn-main { padding: 20px 60px; font-size: 1.5rem; font-weight: bold; border-radius: 50px; border: none; cursor: pointer; transition: 0.1s; color: white; }
+        .btn-red { background: linear-gradient(145deg, #ff416c, #ff4b2b); box-shadow: 0 8px #901c10; }
+        .btn-blue { background: linear-gradient(145deg, #007bff, #0056b3); box-shadow: 0 8px #003a7a; }
+        .btn-main:active { transform: translateY(4px); box-shadow: none; }
+
+        .btn-danger { width: 100%; padding: 12px; background: none; border: 1px solid var(--danger); color: var(--danger); border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
         textarea, .ans-input { width: 100%; padding: 15px; margin: 8px 0; border-radius: 12px; border: none; background: #2d2d2d; color: white; font-size: 1rem; }
-        .quiz-result { background: #000; border: 4px solid var(--blue); border-radius: 25px; padding: 40px; margin: 25px 0; }
-        #fastestName { font-size: 3.5rem; color: #00ff00; font-weight: 900; min-height: 1.2em; text-transform: uppercase; }
-
-        .btn-main { padding: 20px 60px; font-size: 1.5rem; font-weight: bold; border-radius: 50px; border: none; cursor: pointer; transition: 0.1s; color: white; box-shadow: 0 8px #000; }
-        .btn-main:active { transform: translateY(4px); box-shadow: 0 4px #000; }
-        .btn-red { background: linear-gradient(145deg, #ff416c, #ff4b2b); }
-        .btn-blue { background: linear-gradient(145deg, #007bff, #0056b3); }
+        .quiz-result { background: #000; border: 4px solid var(--blue); border-radius: 25px; padding: 30px; margin: 25px 0; }
+        #fastestName { font-size: 3.5rem; color: #00ff00; font-weight: 900; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="font-weight: 900; color: var(--primary); font-size: 1.6rem; letter-spacing: 2px;">GIVISO PRO ADMIN</div>
-    <div id="status">● ĐANG KẾT NỐI</div>
+    <div style="font-weight: 900; color: var(--primary); font-size: 1.6rem;">GIVISO PRO ADMIN</div>
+    <div style="color: #00ff00; font-weight: bold;">● HỆ THỐNG ĐANG CHẠY</div>
 </div>
 
 <div class="main-layout">
     <div class="sidebar">
         <div id="qrcode"></div>
         <div class="stats">
-            <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">HỌC SINH ĐÃ ĐĂNG KÝ</div>
+            <div style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">HỌC SINH ĐÃ VÀO LỚP</div>
             <div id="totalCount" style="font-size: 3.5rem; font-weight: 900; color: var(--gold);">0</div>
         </div>
-        <button onclick="resetParticipants()" style="margin-top:25px; background:none; border:1px solid #444; color:#666; padding:8px 15px; border-radius:8px; cursor:pointer;">Xóa danh sách lớp</button>
+        <button class="btn-danger" onclick="resetParticipants()">DỌN DẸP LỚP (RESET)</button>
+        <p style="font-size: 0.7rem; color: #555; margin-top: 10px;">* Xóa toàn bộ học sinh cũ để sang lớp mới</p>
     </div>
 
     <div class="content">
         <div class="tabs">
-            <button id="tabL" class="tab active" onclick="switchMode('lucky')">1. QUAY SỐ MAY MẮN</button>
-            <button id="tabQ" class="tab" onclick="switchMode('quiz')">2. TRẮC NGHIỆM BẤM CHUÔNG</button>
+            <button id="tabL" class="tab active" onclick="switchMode('lucky')">QUAY SỐ</button>
+            <button id="tabQ" class="tab" onclick="switchMode('quiz')">TRẮC NGHIỆM</button>
         </div>
 
         <div id="luckyPanel">
@@ -75,29 +79,27 @@
                 <div id="d3" class="slot">0</div><div id="d4" class="slot">0</div>
                 <div id="d5" class="slot">0</div><div id="d6" class="slot">0</div>
             </div>
-            <div id="winnerDisplay" style="font-size: 2.2rem; color: var(--gold); font-weight: 900; min-height: 1.5em; margin-bottom: 20px;"></div>
-            <button id="spinBtn" class="btn-main btn-red" onclick="handleSpin()">BẤM ĐỂ QUAY</button>
+            <div id="winnerDisplay" style="font-size: 2.2rem; color: var(--gold); font-weight: 900; min-height: 1.5em;"></div>
+            <button id="spinBtn" class="btn-main btn-red" onclick="handleSpin()">BẮT ĐẦU QUAY</button>
         </div>
 
         <div id="quizPanel" style="display:none;">
-            <textarea id="qInp" placeholder="Nhập câu hỏi tại đây..."></textarea>
+            <textarea id="qInp" placeholder="Nhập câu hỏi..."></textarea>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <input class="ans-input" id="aA" placeholder="Đáp án A"> <input class="ans-input" id="aB" placeholder="Đáp án B">
                 <input class="ans-input" id="aC" placeholder="Đáp án C"> <input class="ans-input" id="aD" placeholder="Đáp án D">
             </div>
             <div class="quiz-result">
                 <div id="fastestName">ĐANG ĐỢI...</div>
-                <div style="color: #444; font-size: 0.8rem; letter-spacing: 2px;">NGƯỜI BẤM CHUÔNG NHANH NHẤT</div>
+                <div style="color: #444; font-size: 0.8rem; letter-spacing: 2px;">NGƯỜI BẤM CHUÔNG ĐẦU TIÊN</div>
             </div>
-            <button class="btn-main btn-blue" onclick="pushQuiz()">CHUYỂN CÂU & MỞ CHUÔNG</button>
-            <br>
-            <button onclick="resetQuizUI()" style="margin-top:15px; border:none; background:none; color:#444; cursor:pointer; text-decoration:underline;">Làm trống câu hỏi</button>
+            <button class="btn-main btn-blue" onclick="pushQuiz()">MỞ CHUÔNG & HIỆN CÂU HỎI</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- FIREBASE CONFIG CỦA THẦY ---
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
         apiKey: "AIzaSyCZs0sGNdMxeS9cL_g9HeMf1LOlxzOUKf4",
         authDomain: "chamtn-26e8f.firebaseapp.com",
@@ -108,11 +110,11 @@
 
     const soundBuzzer = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
 
-    // QR Code
+    // Khởi tạo QR dẫn tới file dangky.html
     const regUrl = window.location.href.replace('index.html', 'dangky.html');
     new QRCode(document.getElementById("qrcode"), { text: regUrl, width: 150, height: 150 });
 
-    // Sync Stats
+    // Đếm số lượng học sinh
     db.collection("participants").onSnapshot(s => document.getElementById('totalCount').innerText = s.size);
 
     function switchMode(m) {
@@ -123,31 +125,54 @@
         db.collection("system_status").doc("mode").set({ current: m });
     }
 
-    // --- LOGIC QUAY SỐ ---
-    async function handleSpin() {
-        const snap = await db.collection("participants").get();
-        if(snap.empty) return alert("Chưa có học sinh đăng ký!");
-        
-        const btn = document.getElementById('spinBtn');
+    // --- HÀM RESET TOÀN BỘ NGƯỜI THAM GIA ---
+    async function resetParticipants() {
+        const password = confirm("Thầy có chắc chắn muốn xóa tất cả học sinh cũ để đón lớp mới không?");
+        if (!password) return;
+
+        const btn = document.querySelector('.btn-danger');
+        btn.innerText = "ĐANG XÓA...";
         btn.disabled = true;
 
-        // 1. RESET LỒNG SỐ VỀ 0 VÀ XÓA TÊN CŨ
+        try {
+            // Xóa toàn bộ học sinh trong collection participants
+            const snap = await db.collection("participants").get();
+            const batch = db.batch();
+            snap.docs.forEach(doc => batch.delete(doc.ref));
+            
+            // Reset các trạng thái hệ thống về mặc định
+            batch.set(db.collection("system_status").doc("current_draw"), { status: "IDLE", winningNumber: "000000" });
+            batch.set(db.collection("system_status").doc("quiz"), { status: "CLOSED", winner: "", q: "" });
+            
+            await batch.commit();
+            alert("Đã làm sạch dữ liệu lớp học thành công!");
+        } catch (e) {
+            alert("Lỗi khi reset: " + e.message);
+        } finally {
+            btn.innerText = "DỌN DẸP LỚP (RESET)";
+            btn.disabled = false;
+            location.reload(); // Tải lại trang để làm mới giao diện
+        }
+    }
+
+    // --- QUAY SỐ ---
+    async function handleSpin() {
+        const snap = await db.collection("participants").get();
+        if(snap.empty) return alert("Chưa có học sinh nào trong lớp!");
+        
         document.getElementById('winnerDisplay').innerText = "ĐANG TÌM CHỦ NHÂN...";
         for(let i=1; i<=6; i++) {
             const el = document.getElementById('d'+i);
-            el.innerText = "0";
-            el.classList.remove('final', 'spinning');
+            el.innerText = "0"; el.classList.remove('final', 'spinning');
         }
 
         const list = snap.docs.map(d => d.data());
         const winner = list[Math.floor(Math.random() * list.length)];
         
-        // 2. GỬI LỆNH ĐỒNG BỘ CHO HS (KÈM RESET)
         await db.collection("system_status").doc("current_draw").set({
             winningNumber: winner.number, status: "SPINNING", ts: Date.now()
         });
 
-        // 3. HIỆU ỨNG QUAY
         for(let i=0; i<6; i++) {
             const el = document.getElementById('d'+(i+1));
             el.classList.add('spinning');
@@ -157,20 +182,18 @@
                 await new Promise(r => setTimeout(r, 60));
             }
             el.innerText = winner.number[i];
-            el.classList.remove('spinning');
-            el.classList.add('final');
+            el.classList.remove('spinning'); el.classList.add('final');
         }
 
         document.getElementById('winnerDisplay').innerText = "CHÚC MỪNG: " + winner.name.toUpperCase();
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        btn.disabled = false;
         await db.collection("system_status").doc("current_draw").update({ status: "DONE" });
     }
 
-    // --- LOGIC TRẮC NGHIỆM ---
+    // --- TRẮC NGHIỆM ---
     async function pushQuiz() {
         const q = document.getElementById('qInp').value;
-        if(!q) return alert("Thầy chưa nhập câu hỏi!");
+        if(!q) return alert("Thầy vui lòng nhập câu hỏi!");
         document.getElementById('fastestName').innerText = "ĐANG ĐỢI...";
         await db.collection("system_status").doc("quiz").set({
             q: q,
@@ -183,27 +206,8 @@
         if(doc.exists && doc.data().winner) {
             document.getElementById('fastestName').innerText = doc.data().winner;
             soundBuzzer.play();
-            confetti({ particleCount: 50, spread: 60, colors: ['#007bff'] });
         }
     });
-
-    // --- RESET HỆ THỐNG ---
-    async function resetParticipants() {
-        if(confirm("Xóa toàn bộ danh sách học sinh?")) {
-            const snap = await db.collection("participants").get();
-            const batch = db.batch();
-            snap.docs.forEach(d => batch.delete(d.ref));
-            await batch.commit();
-            location.reload();
-        }
-    }
-
-    function resetQuizUI() {
-        document.getElementById('qInp').value = "";
-        document.getElementById('aA').value = ""; document.getElementById('aB').value = "";
-        document.getElementById('aC').value = ""; document.getElementById('aD').value = "";
-        document.getElementById('fastestName').innerText = "ĐANG ĐỢI...";
-    }
 </script>
 </body>
 </html>
