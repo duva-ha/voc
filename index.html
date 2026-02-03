@@ -3,75 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal OS - Dashboard</title>
+    <title>Personal OS - Finance</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            overflow: hidden; /* Giữ giao diện gọn trong màn hình */
-        }
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            height: 100vh;
-            gap: 8px;
-            padding: 8px;
-            background-color: #f8f9fa;
-        }
-        .card {
+        .page { display: none; height: 100vh; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .finance-item {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            border-radius: 24px;
-            transition: transform 0.1s active;
-            text-decoration: none;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .card:active {
-            transform: scale(0.95);
-            opacity: 0.9;
+            padding: 20px;
+            margin-bottom: 12px;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50">
 
-    <div class="grid-container">
-        <a href="#health" class="card" style="background-color: #FFE8CC;">
-            <div class="p-4 bg-white/50 rounded-full mb-3">
-                <i class="fa-solid fa-heart-pulse text-orange-500 text-3xl"></i>
+    <div id="main-page" class="page active">
+        <div class="grid grid-cols-2 grid-rows-2 h-screen gap-3 p-3">
+            <div class="bg-[#FFE8CC] rounded-[30px] flex flex-col items-center justify-center shadow-sm">
+                <i class="fa-solid fa-heart-pulse text-orange-500 text-3xl mb-2"></i>
+                <span class="font-bold text-orange-900">SỨC KHỎE</span>
             </div>
-            <span class="font-bold text-orange-800 text-lg">SỨC KHỎE</span>
-            <span class="text-orange-600/70 text-xs mt-1">Cân nặng, Huyết áp...</span>
-        </a>
+            
+            <div onclick="showPage('finance-page')" class="bg-[#C6F6D5] rounded-[30px] flex flex-col items-center justify-center shadow-sm active:scale-95 transition-transform">
+                <i class="fa-solid fa-wallet text-emerald-600 text-3xl mb-2"></i>
+                <span class="font-bold text-emerald-900">TÀI CHÍNH</span>
+            </div>
 
-        <a href="#finance" class="card" style="background-color: #C6F6D5;">
-            <div class="p-4 bg-white/50 rounded-full mb-3">
-                <i class="fa-solid fa-wallet text-emerald-600 text-3xl"></i>
+            <div class="bg-[#EBEFFF] rounded-[30px] flex flex-col items-center justify-center shadow-sm">
+                <i class="fa-solid fa-briefcase text-indigo-500 text-3xl mb-2"></i>
+                <span class="font-bold text-indigo-900">CÔNG VIỆC</span>
             </div>
-            <span class="font-bold text-emerald-900 text-lg">TÀI CHÍNH</span>
-            <span class="text-emerald-700/70 text-xs mt-1">Thu nhập, Chi tiêu...</span>
-        </a>
-
-        <a href="#work" class="card" style="background-color: #EBEFFF;">
-            <div class="p-4 bg-white/50 rounded-full mb-3">
-                <i class="fa-solid fa-briefcase text-indigo-500 text-3xl"></i>
+            <div class="bg-[#FFF9DB] rounded-[30px] flex flex-col items-center justify-center shadow-sm">
+                <i class="fa-solid fa-house-chimney text-yellow-600 text-3xl mb-2"></i>
+                <span class="font-bold text-yellow-900">GIA ĐÌNH</span>
             </div>
-            <span class="font-bold text-indigo-900 text-lg">CÔNG VIỆC</span>
-            <span class="text-indigo-700/70 text-xs mt-1">Việc cần làm, Lịch dạy...</span>
-        </a>
-
-        <a href="#family" class="card" style="background-color: #FFF9DB;">
-            <div class="p-4 bg-white/50 rounded-full mb-3">
-                <i class="fa-solid fa-house-chimney text-yellow-600 text-3xl"></i>
-            </div>
-            <span class="font-bold text-yellow-900 text-lg">GIA ĐÌNH</span>
-            <span class="text-yellow-700/70 text-xs mt-1">Sự kiện, Thành viên...</span>
-        </a>
+        </div>
     </div>
 
+    <div id="finance-page" class="page p-5">
+        <div class="flex items-center mb-6">
+            <button onclick="showPage('main-page')" class="mr-4 p-2 bg-white rounded-full shadow-sm">
+                <i class="fa-solid fa-arrow-left text-gray-600"></i>
+            </button>
+            <h1 class="text-xl font-bold text-emerald-900">Quản lý Tài chính</h1>
+        </div>
+
+        <div class="bg-emerald-600 rounded-[25px] p-6 text-white mb-8 shadow-lg shadow-emerald-100">
+            <p class="text-emerald-100 text-sm">Tổng tài sản hiện có</p>
+            <h2 class="text-3xl font-bold mt-1">540.000.000đ</h2>
+        </div>
+
+        <div class="space-y-4">
+            <div class="finance-item border-l-4 border-blue-500">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                    <i class="fa-solid fa-vault text-blue-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-gray-800">Quản lý tài sản</h3>
+                    <p class="text-xs text-gray-500">Tiền mặt, sổ tiết kiệm, vàng...</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-300"></i>
+            </div>
+
+            <div class="finance-item border-l-4 border-emerald-500">
+                <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mr-4">
+                    <i class="fa-solid fa-arrow-trend-up text-emerald-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-gray-800">Theo dõi thu</h3>
+                    <p class="text-xs text-gray-500">Lương, thưởng, thu nhập phụ...</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-300"></i>
+            </div>
+
+            <div class="finance-item border-l-4 border-red-400">
+                <div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mr-4">
+                    <i class="fa-solid fa-cart-shopping text-red-500"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-gray-800">Theo dõi chi</h3>
+                    <p class="text-xs text-gray-500">Ăn uống, hóa đơn, mua sắm...</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-300"></i>
+            </div>
+
+            <div class="finance-item border-l-4 border-purple-500">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                    <i class="fa-solid fa-chart-pie text-purple-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-gray-800">Báo cáo dòng tiền</h3>
+                    <p class="text-xs text-gray-500">Biểu đồ thu chi hàng tháng</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-gray-300"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            // Ẩn tất cả các page
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            // Hiển thị page được chọn
+            document.getElementById(pageId).classList.add('active');
+        }
+    </script>
 </body>
 </html>
