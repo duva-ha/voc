@@ -1,22 +1,240 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- Icon hiển thị trên tab trình duyệt -->
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Dashboard - Modern Workspace</title>
-    
-    <!-- Google Fonts để giao diện trông chuyên nghiệp hơn -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <!-- Đây là nơi toàn bộ giao diện React sẽ được đổ vào -->
-    <div id="root"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Dashboard Pro</title>
+    <!-- Tailwind CSS cho giao diện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue.js cho logic đa nhiệm -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <div id="app" class="flex h-screen overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col">
+            <div class="p-6">
+                <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent italic">
+                    MY DASHBOARD
+                </h1>
+            </div>
+            <nav class="flex-1 px-4 space-y-2">
+                <button v-for="item in menu" :key="item.label" 
+                        @click="currentTab = item.id"
+                        :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all', 
+                                 currentTab === item.id ? 'bg-indigo-50 text-indigo-600 font-bold' : 'text-slate-500 hover:bg-slate-50']">
+                    <i :data-lucide="item.icon" class="w-5 h-5"></i> {{ item.label }}
+                </button>
+            </nav>
+        </aside>
 
-    <!-- Điểm kết nối quan trọng: Dẫn trình duyệt tới file chạy chính -->
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- HEADER -->
+            <header class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
+                <div class="relative w-96">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                    <input type="text" placeholder="Tìm kiếm công việc..." 
+                           class="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm">
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-xs font-bold text-slate-800 uppercase tracking-tight">Thoại Gia</p>
+                        <p class="text-[10px] text-indigo-500 font-bold tracking-widest uppercase">High School Teacher</p>
+                    </div>
+                    <div class="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-100">GT</div>
+                </div>
+            </header>
+
+            <!-- DASHBOARD BODY -->
+            <div class="flex-1 overflow-y-auto p-6 md:p-8">
+                <div class="max-w-5xl mx-auto">
+                    
+                    <!-- Tiêu đề & Nút thêm -->
+                    <div class="flex justify-between items-end mb-8">
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight italic">Chào buổi sáng! ☀️</h2>
+                            <p class="text-slate-500 font-medium">Bạn có {{ pendingTasks }} nhiệm vụ cần xử lý.</p>
+                        </div>
+                        <button @click="showModal = true" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-xl shadow-indigo-200 transition-all active:scale-95">
+                            <i data-lucide="plus" class="w-5 h-5"></i> Việc mới
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Cột Trái: Task List -->
+                        <div class="lg:col-span-2 space-y-4">
+                            <h3 class="font-bold text-slate-400 text-xs uppercase tracking-widest px-2 italic">Danh sách ưu tiên</h3>
+                            
+                            <div v-for="task in tasks" :key="task.id" 
+                                 class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-md transition-all group">
+                                <div class="flex items-center gap-4">
+                                    <input type="checkbox" v-model="task.completed" class="w-5 h-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                    <div>
+                                        <h4 :class="['font-semibold transition-all', task.completed ? 'line-through text-slate-300' : 'text-slate-700']">{{ task.title }}</h4>
+                                        <div class="flex items-center gap-3 mt-1">
+                                            <span :class="['text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider', getPriorityClass(task.priority)]">
+                                                {{ task.priority }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button @click="deleteTask(task.id)" class="text-slate-300 hover:text-red-500 transition-colors">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            <div v-if="tasks.length === 0" class="text-center py-20 bg-white border-2 border-dashed border-slate-200 rounded-3xl">
+                                <p class="text-slate-400 italic font-medium">Chưa có nhiệm vụ nào. Hãy thêm việc mới!</p>
+                            </div>
+                        </div>
+
+                        <!-- Cột Phải: Widgets -->
+                        <div class="space-y-6">
+                            <!-- Progress Card -->
+                            <div class="bg-indigo-600 p-6 rounded-3xl text-white shadow-2xl shadow-indigo-200">
+                                <h3 class="font-semibold opacity-80 text-sm">Tiến độ hoàn thành</h3>
+                                <div class="text-4xl font-bold my-3 tracking-tighter">{{ completionRate }}%</div>
+                                <div class="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+                                    <div class="bg-white h-full transition-all duration-1000" :style="{ width: completionRate + '%' }"></div>
+                                </div>
+                            </div>
+
+                            <!-- Pomodoro Widget -->
+                            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 italic">Focus Timer</span>
+                                <div class="text-5xl font-mono font-bold text-slate-800 mb-6 tracking-tighter italic">
+                                    {{ formatTime(timer) }}
+                                </div>
+                                <div class="flex gap-2 w-full">
+                                    <button @click="toggleTimer" class="flex-1 py-3 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all">
+                                        {{ isRunning ? 'Dừng' : 'Bắt đầu' }}
+                                    </button>
+                                    <button @click="resetTimer" class="p-3 border-2 border-slate-100 rounded-2xl hover:bg-slate-50">
+                                        <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- MODAL THÊM TASK -->
+        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+                <h3 class="text-xl font-bold mb-6">Nhiệm vụ mới</h3>
+                <div class="space-y-4">
+                    <input v-model="newTask.title" type="text" placeholder="Bạn cần làm gì?" class="w-full p-3 bg-slate-100 rounded-xl border-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <select v-model="newTask.priority" class="w-full p-3 bg-slate-100 rounded-xl border-none outline-none">
+                        <option value="High">Ưu tiên cao</option>
+                        <option value="Medium">Ưu tiên vừa</option>
+                        <option value="Low">Ưu tiên thấp</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 mt-8">
+                    <button @click="showModal = false" class="flex-1 py-3 font-bold text-slate-500">Hủy</button>
+                    <button @click="addTask" class="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100">Lưu lại</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const tasks = ref(JSON.parse(localStorage.getItem('my-tasks') || '[]'));
+                const showModal = ref(false);
+                const currentTab = ref('dashboard');
+                const timer = ref(1500); // 25 phút
+                const isRunning = ref(false);
+                const timerId = ref(null);
+                
+                const newTask = ref({ title: '', priority: 'Medium' });
+
+                const menu = [
+                    { id: 'dashboard', icon: 'layout-dashboard', label: 'Tổng quan' },
+                    { id: 'tasks', icon: 'check-square', label: 'Công việc' },
+                    { id: 'calendar', icon: 'calendar', label: 'Lịch trình' },
+                    { id: 'settings', icon: 'settings', label: 'Cài đặt' }
+                ];
+
+                // Lưu dữ liệu mỗi khi tasks thay đổi
+                watch(tasks, (val) => {
+                    localStorage.setItem('my-tasks', JSON.stringify(val));
+                    setTimeout(() => lucide.createIcons(), 10);
+                }, { deep: true });
+
+                const pendingTasks = computed(() => tasks.value.filter(t => !t.completed).length);
+                const completionRate = computed(() => {
+                    if (tasks.value.length === 0) return 0;
+                    return Math.round((tasks.value.filter(t => t.completed).length / tasks.value.length) * 100);
+                });
+
+                const addTask = () => {
+                    if (!newTask.value.title) return;
+                    tasks.value.unshift({
+                        id: Date.now(),
+                        title: newTask.value.title,
+                        priority: newTask.value.priority,
+                        completed: false
+                    });
+                    newTask.value = { title: '', priority: 'Medium' };
+                    showModal.value = false;
+                };
+
+                const deleteTask = (id) => tasks.value = tasks.value.filter(t => t.id !== id);
+
+                const getPriorityClass = (p) => {
+                    if (p === 'High') return 'bg-red-100 text-red-600';
+                    if (p === 'Medium') return 'bg-amber-100 text-amber-600';
+                    return 'bg-emerald-100 text-emerald-600';
+                };
+
+                const formatTime = (s) => {
+                    const m = Math.floor(s / 60);
+                    const sec = s % 60;
+                    return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+                };
+
+                const toggleTimer = () => {
+                    if (isRunning.value) {
+                        clearInterval(timerId.value);
+                    } else {
+                        timerId.value = setInterval(() => {
+                            if (timer.value > 0) timer.value--;
+                        }, 1000);
+                    }
+                    isRunning.value = !isRunning.value;
+                };
+
+                const resetTimer = () => {
+                    clearInterval(timerId.value);
+                    timer.value = 1500;
+                    isRunning.value = false;
+                };
+
+                onMounted(() => {
+                    lucide.createIcons();
+                });
+
+                return {
+                    tasks, menu, currentTab, showModal, newTask, pendingTasks, completionRate,
+                    addTask, deleteTask, getPriorityClass, timer, isRunning, toggleTimer, resetTimer, formatTime
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
 </html>
