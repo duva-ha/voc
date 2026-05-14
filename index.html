@@ -3,138 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee Chain Manager Pro</title>
+    <title>Coffee Chain Enterprise - Boss Thoại Gia</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .tab-active { @apply bg-amber-500 text-white shadow-lg shadow-amber-200; }
     </style>
 </head>
 <body class="bg-stone-50 text-stone-900">
     <div id="app" class="flex h-screen overflow-hidden">
         
         <!-- SIDEBAR -->
-        <aside class="w-64 bg-stone-900 text-white flex flex-col p-6">
+        <aside class="w-64 bg-stone-900 text-white flex flex-col p-6 shadow-2xl z-20">
             <div class="mb-10 text-center">
-                <h1 class="text-2xl font-extrabold tracking-tighter text-amber-500">COFFEE OS</h1>
-                <p class="text-[10px] text-stone-400 uppercase tracking-widest mt-1">Hệ thống quản trị chuỗi</p>
+                <h1 class="text-2xl font-extrabold tracking-tighter text-amber-500 italic">COFFEE OS</h1>
+                <p class="text-[10px] text-stone-400 uppercase tracking-widest mt-1 font-bold">Hệ thống quản trị chuỗi</p>
             </div>
             <nav class="flex-1 space-y-2">
-                <button v-for="m in menu" :key="m.id" 
-                        class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-stone-400 hover:text-white hover:bg-stone-800">
-                    <i :data-lucide="m.icon" class="w-5 h-5"></i> {{ m.label }}
+                <button v-for="m in menu" :key="m.id" @click="currentTab = m.id"
+                        :class="['w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all', currentTab === m.id ? 'tab-active' : 'text-stone-400 hover:text-white hover:bg-stone-800']">
+                    <i :data-lucide="m.icon" class="w-5 h-5"></i> <span class="font-bold text-sm">{{ m.label }}</span>
                 </button>
             </nav>
-            <div class="pt-6 border-t border-stone-800">
-                <p class="text-xs text-stone-500 italic text-center">Chào Boss Thoại Gia!</p>
+            <div class="pt-6 border-t border-stone-800 text-center">
+                <p class="text-[10px] text-stone-500 uppercase font-bold tracking-widest">Administrator</p>
+                <p class="text-sm font-bold text-amber-500 italic">Gia Thoại</p>
             </div>
         </aside>
 
-        <!-- MAIN -->
-        <main class="flex-1 overflow-y-auto p-8">
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-y-auto p-8 relative">
             <div class="max-w-7xl mx-auto">
-                <div class="flex justify-between items-center mb-8">
+                
+                <!-- HEADER -->
+                <div class="flex justify-between items-center mb-10">
                     <div>
-                        <h2 class="text-3xl font-extrabold text-stone-800 italic">Tổng quan hệ thống ☕</h2>
-                        <p class="text-stone-500 font-medium">Bạn đang quản lý 8 chi nhánh hoạt động.</p>
+                        <h2 class="text-3xl font-black text-stone-800 italic uppercase tracking-tight">{{ menu.find(m => m.id === currentTab).label }}</h2>
+                        <p class="text-stone-500 font-medium">Dữ liệu cập nhật thời gian thực từ 8 chi nhánh.</p>
                     </div>
-                    <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border border-stone-200">
-                        <p class="text-xs text-stone-400 font-bold uppercase">Tổng doanh thu hôm nay</p>
-                        <p class="text-xl font-black text-amber-600">42,500,000đ</p>
+                    <div class="flex gap-4">
+                        <div class="bg-white px-6 py-3 rounded-3xl shadow-sm border border-stone-200 text-right">
+                            <p class="text-[10px] text-stone-400 font-black uppercase tracking-widest">Lợi nhuận ròng (Tháng)</p>
+                            <p class="text-xl font-black text-green-600">+124,000,000đ</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 8 BRANCHES GRID -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                    <div v-for="branch in branches" :key="branch.id" 
-                         class="bg-white p-5 rounded-3xl border border-stone-200 shadow-sm hover:shadow-md transition-all">
-                        <div class="flex justify-between items-start mb-3">
-                            <span class="text-[10px] font-black bg-stone-100 px-2 py-1 rounded-lg uppercase">Quán #{{ branch.id }}</span>
-                            <span :class="['w-2 h-2 rounded-full', branch.status === 'Open' ? 'bg-green-500' : 'bg-red-500']"></span>
-                        </div>
-                        <h4 class="font-bold text-stone-800 mb-1">{{ branch.name }}</h4>
-                        <p class="text-2xl font-black text-stone-700 mb-4">{{ branch.revenue }}đ</p>
-                        <div class="w-full bg-stone-100 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-amber-500 h-full" :style="{ width: branch.target + '%' }"></div>
-                        </div>
-                        <p class="text-[10px] mt-2 text-stone-400 font-bold uppercase italic">Đạt {{ branch.target }}% mục tiêu</p>
-                    </div>
-                </div>
-
-                <!-- BOTTOM SECTION -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Inventory Alerts -->
-                    <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-stone-200">
-                        <h3 class="font-bold text-stone-800 mb-6 flex items-center gap-2">
-                            <i data-lucide="alert-triangle" class="text-amber-500 w-5 h-5"></i> Cảnh báo hết hàng
-                        </h3>
-                        <div class="space-y-3">
-                            <div v-for="item in stockAlerts" :key="item.name" class="flex items-center justify-between p-4 bg-stone-50 rounded-2xl">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-700 font-bold uppercase text-xs">{{ item.shop }}</div>
-                                    <p class="font-bold text-stone-700 text-sm">{{ item.name }}</p>
-                                </div>
-                                <span class="text-xs font-black text-red-500 uppercase">Còn {{ item.qty }}</span>
+                <!-- TAB 1: TỔNG QUAN -->
+                <div v-if="currentTab === 'dashboard'" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div v-for="branch in branches" :key="branch.id" class="bg-white p-6 rounded-[2.5rem] border border-stone-100 shadow-sm hover:shadow-xl transition-all">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-[10px] font-black bg-stone-100 px-3 py-1 rounded-full text-stone-500 uppercase italic">CN #{{ branch.id }}</span>
+                                <span :class="['w-2.5 h-2.5 rounded-full', branch.status === 'Open' ? 'bg-green-500 animate-pulse' : 'bg-red-500']"></span>
+                            </div>
+                            <h4 class="font-extrabold text-stone-800 text-lg mb-1">{{ branch.name }}</h4>
+                            <p class="text-2xl font-black text-stone-700 tracking-tighter mb-4">{{ branch.revenue }}đ</p>
+                            <div class="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
+                                <div class="bg-amber-500 h-full transition-all duration-1000" :style="{ width: branch.target + '%' }"></div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Top Selling Items -->
-                    <div class="bg-stone-900 p-6 rounded-3xl text-white shadow-xl">
-                        <h3 class="font-bold mb-6 italic text-amber-500 uppercase tracking-widest text-xs text-center">Top bán chạy (Toàn chuỗi)</h3>
+                <!-- TAB 2: QUẢN LÝ KHO (INVENTORY) -->
+                <div v-if="currentTab === 'inventory'" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-white p-8 rounded-[3rem] shadow-sm border border-stone-100">
+                        <h3 class="font-black text-stone-800 mb-6 uppercase italic tracking-tighter">Tồn kho nguyên liệu chính</h3>
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-[10px] text-stone-400 font-black uppercase border-b border-stone-50">
+                                    <th class="pb-4">Nguyên liệu</th>
+                                    <th class="pb-4">Đơn vị</th>
+                                    <th class="pb-4">Tổng tồn</th>
+                                    <th class="pb-4">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm font-bold">
+                                <tr v-for="item in inventory" :key="item.name" class="border-b border-stone-50">
+                                    <td class="py-4">{{ item.name }}</td>
+                                    <td class="py-4 text-stone-400">{{ item.unit }}</td>
+                                    <td class="py-4">{{ item.stock }}</td>
+                                    <td class="py-4">
+                                        <span :class="item.stock < 20 ? 'text-red-500' : 'text-green-600'">
+                                            {{ item.stock < 20 ? 'Cần nhập gấp' : 'Ổn định' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-amber-500 p-8 rounded-[3rem] text-white shadow-2xl">
+                        <h3 class="font-black mb-6 italic uppercase text-xs">Yêu cầu nhập hàng từ chi nhánh</h3>
+                        <div class="space-y-4 text-xs font-bold">
+                            <div v-for="req in stockRequests" class="p-4 bg-white/10 rounded-2xl border border-white/20">
+                                <p class="opacity-60">{{ req.shop }}</p>
+                                <p class="text-lg mt-1">{{ req.item }} (x{{ req.qty }})</p>
+                                <button class="mt-3 px-4 py-1.5 bg-white text-amber-600 rounded-full font-black uppercase text-[10px]">Phê duyệt</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: NHÂN SỰ (HR) -->
+                <div v-if="currentTab === 'hr'" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-3xl border border-stone-100 text-center">
+                            <p class="text-[10px] text-stone-400 font-black uppercase">Tổng nhân sự</p>
+                            <p class="text-4xl font-black text-stone-800">42</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-stone-100 text-center">
+                            <p class="text-[10px] text-stone-400 font-black uppercase">Đang trong ca</p>
+                            <p class="text-4xl font-black text-indigo-600">16</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-stone-100 text-center">
+                            <p class="text-[10px] text-stone-400 font-black uppercase">Chi phí lương dự kiến</p>
+                            <p class="text-4xl font-black text-red-500">185M</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-[3rem] border border-stone-100 shadow-sm">
+                        <h3 class="font-black text-stone-800 mb-6 uppercase italic tracking-tighter">Lịch trực hôm nay (8 Quán)</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div v-for="b in branches" class="p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                                <p class="text-[10px] font-black text-stone-400 uppercase italic mb-2">{{ b.name }}</p>
+                                <p class="font-bold text-sm text-stone-700">Ca sáng: <span class="text-amber-600">Thanh, Bình</span></p>
+                                <p class="font-bold text-sm text-stone-700 mt-1">Ca chiều: <span class="text-indigo-600">Hải, Minh</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: TÀI CHÍNH (FINANCE) -->
+                <div v-if="currentTab === 'finance'" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-stone-900 p-8 rounded-[3rem] text-white shadow-2xl">
+                        <h3 class="font-black mb-8 italic uppercase text-xs tracking-widest text-amber-500">Cấu trúc chi phí toàn hệ thống</h3>
                         <div class="space-y-6">
-                            <div v-for="(drink, i) in topDrinks" :key="drink.name" class="flex items-center gap-4">
-                                <span class="text-2xl font-black italic opacity-20">0{{ i+1 }}</span>
-                                <div class="flex-1">
-                                    <p class="font-bold text-sm">{{ drink.name }}</p>
-                                    <p class="text-[10px] text-stone-400 font-bold uppercase">{{ drink.sales }} ly hôm nay</p>
+                            <div v-for="f in finances" class="space-y-2">
+                                <div class="flex justify-between text-sm font-bold uppercase tracking-tighter">
+                                    <span>{{ f.label }}</span>
+                                    <span>{{ f.amount }}đ ({{ f.percent }}%)</span>
+                                </div>
+                                <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-amber-500 h-full" :style="{ width: f.percent + '%' }"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="bg-white p-8 rounded-[3rem] border border-stone-100 shadow-sm flex flex-col justify-center items-center text-center">
+                        <i data-lucide="trending-up" class="w-16 h-16 text-green-500 mb-4"></i>
+                        <h3 class="text-2xl font-black text-stone-800 italic uppercase">Điểm hòa vốn</h3>
+                        <p class="text-stone-500 font-bold max-w-xs mt-2 italic">Hệ thống cần đạt doanh thu trung bình 32,000,000đ/ngày để duy trì điểm hòa vốn.</p>
+                        <div class="mt-8 px-8 py-4 bg-green-50 rounded-2xl border border-green-100">
+                            <p class="text-[10px] text-green-600 font-black uppercase">Thực tế hôm nay</p>
+                            <p class="text-3xl font-black text-green-700">42,500,000đ</p>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </main>
     </div>
 
     <script>
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, onMounted, watch } = Vue;
         createApp({
             setup() {
-                const branches = ref([
+                const currentTab = ref('dashboard');
+                const menu = [
+                    { id: 'dashboard', label: 'Tổng quan', icon: 'layout-dashboard' },
+                    { id: 'inventory', label: 'Quản lý Kho', icon: 'package' },
+                    { id: 'hr', label: 'Nhân sự', icon: 'users' },
+                    { id: 'finance', label: 'Tài chính', icon: 'bar-chart-3' }
+                ];
+
+                const branches = [
                     { id: 1, name: 'Phú Vinh Center', revenue: '8,200,000', target: 82, status: 'Open' },
                     { id: 2, name: 'Trần Văn Thành', revenue: '5,500,000', target: 55, status: 'Open' },
                     { id: 3, name: 'Giviso Coffee 1', revenue: '4,100,000', target: 41, status: 'Open' },
                     { id: 4, name: 'Giviso Coffee 2', revenue: '6,800,000', target: 68, status: 'Open' },
                     { id: 5, name: 'Tech Cafe 10A7', revenue: '3,200,000', target: 32, status: 'Closed' },
                     { id: 6, name: 'Modern Hub', revenue: '7,100,000', target: 71, status: 'Open' },
-                    { id: 7, name: 'Second Brain Coffee', revenue: '4,900,000', target: 49, status: 'Open' },
+                    { id: 7, name: 'Second Brain', revenue: '4,900,000', target: 49, status: 'Open' },
                     { id: 8, name: 'Industrial Station', revenue: '2,700,000', target: 27, status: 'Open' }
-                ]);
-
-                const stockAlerts = [
-                    { shop: 'P.V', name: 'Hạt Arabica rang vừa', qty: '2.5kg' },
-                    { shop: 'T.V.T', name: 'Sữa đặc Ngôi Sao', qty: '5 lon' },
-                    { shop: 'G.V 1', name: 'Ly nhựa 500ml', qty: '150 cái' }
                 ];
 
-                const topDrinks = [
-                    { name: 'Cà phê Muối Đặc biệt', sales: 450 },
-                    { name: 'Bạc xỉu 3 tầng', sales: 320 },
-                    { name: 'Trà trái cây nhiệt đới', sales: 280 }
+                const inventory = [
+                    { name: 'Hạt Arabica rang vừa', unit: 'kg', stock: 85 },
+                    { name: 'Sữa đặc Ngôi Sao', unit: 'lon', stock: 12 },
+                    { name: 'Trà sen túi lọc', unit: 'hộp', stock: 45 },
+                    { name: 'Đường cát trắng', unit: 'kg', stock: 15 }
                 ];
 
-                const menu = [
-                    { id: 1, label: 'Bảng điều khiển', icon: 'layout-dashboard' },
-                    { id: 2, label: 'Quản lý Kho', icon: 'package' },
-                    { id: 3, label: 'Nhân sự & Ca làm', icon: 'users' },
-                    { id: 4, label: 'Báo cáo Tài chính', icon: 'bar-chart-3' }
+                const stockRequests = [
+                    { shop: 'CN #2: Trần Văn Thành', item: 'Sữa tươi', qty: '20L' },
+                    { shop: 'CN #4: Giviso Coffee 2', item: 'Ly nhựa', qty: '500' }
                 ];
+
+                const finances = [
+                    { label: 'Chi phí nguyên liệu (COGS)', amount: '350,000,000', percent: 35 },
+                    { label: 'Chi phí Nhân sự', amount: '185,000,000', percent: 18.5 },
+                    { label: 'Mặt bằng & Điện nước', amount: '120,000,000', percent: 12 },
+                    { label: 'Marketing & Quảng bá', amount: '50,000,000', percent: 5 }
+                ];
+
+                watch(currentTab, () => {
+                    setTimeout(() => lucide.createIcons(), 10);
+                });
 
                 onMounted(() => lucide.createIcons());
-                return { branches, menu, stockAlerts, topDrinks };
+
+                return { currentTab, menu, branches, inventory, stockRequests, finances };
             }
         }).mount('#app');
     </script>
